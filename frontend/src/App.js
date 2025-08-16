@@ -1,6 +1,7 @@
 import React,{ useState, useEffect } from 'react';
 import { Routes, Route } from "react-router-dom";
 import Login from './pages/Login';
+import CreateAccount from './pages/CreateAccount';
 import Post from './components/Post';
 import './styles/App.css';
 import GroupTab from './components/GroupTab';
