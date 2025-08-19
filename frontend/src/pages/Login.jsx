@@ -12,6 +12,7 @@ const Login = () => {
     setError("");
     setSuccess("");
     try {
+      // Appropriate method name for firebase authentication in particular
       await signInWithEmailAndPassword(auth, email, password);
       setSuccess("Logged in successfully");
       // navigate to home here
