@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { onAuthStateChanged } from "firebase/auth";
+import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { auth } from "../firebase";
 import clsx from "clsx";
 
 export default function GroupSearch() {
@@ -17,20 +19,31 @@ export default function GroupSearch() {
     e.preventDefault();
   };
 
-  const groups = [
-    { id: 1, name: "Group 1", profilePic: "/photo1.jpg" },
-    { id: 2, name: "Group 2", profilePic: "/photo2.jpg" },
-    { id: 3, name: "Group 3", profilePic: "/photo3.jpg" },
-    { id: 4, name: "Group 4", profilePic: "/group-4-avatar.png" },
-    { id: 5, name: "Group 5", profilePic: "/group-5-avatar.png" },
-    { id: 6, name: "Group 6", profilePic: "/group-6-avatar.png" },
-    { id: 7, name: "Group 7", profilePic: "/group-7-avatar.png" },
-    { id: 8, name: "Group 8", profilePic: "/group-8-avatar.png" },
-    { id: 9, name: "Group 9", profilePic: "/group-9-avatar.png" },
-  ];
+  // Fetch user's groups from Firestore
+  const [groups, setGroups] = useState([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
+
+  useEffect(() => {
+    let unsubscribe;
+    setLoadingGroups(true);
+    unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const db = getFirestore();
+        // Query groups where users array contains the current user's UID
+        const q = query(collection(db, "groups"), where("users", "array-contains", user.uid));
+        const groupSnap = await getDocs(q);
+        const userGroups = groupSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setGroups(userGroups);
+      } else {
+        setGroups([]);
+      }
+      setLoadingGroups(false);
+    });
+    return () => unsubscribe && unsubscribe();
+  }, []);
 
   const filteredGroups = groups.filter((group) =>
-    group.name.toLowerCase().includes(searchQuery.toLowerCase())
+    group.name && group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Close dropdown and clear input when clicking outside
@@ -71,7 +84,7 @@ export default function GroupSearch() {
     searchQuery.trim()
       ? filteredGroups
       : expanded
-      ? filteredGroups
+      ? groups
       : groups.slice(0, 5);
 
   return (
@@ -113,9 +126,15 @@ export default function GroupSearch() {
         {/* List of Groups */}
         <div className={`flex flex-col gap-2 ${expanded ? "overflow-y-auto" : ""} with-scrollbar items-start`}>
           <ul className='flex flex-col gap-2 grow'>
-            {displayedGroups.map((group) => (
-              <GroupItem key={group.id} group={group} />
-            ))}
+            {loadingGroups ? (
+              <li className="text-gray-500 text-sm">Loading groups...</li>
+            ) : displayedGroups.length === 0 ? (
+              <li className="text-gray-500 text-sm">No groups found.</li>
+            ) : (
+              displayedGroups.map((group) => (
+                <GroupItem key={group.id} group={group} />
+              ))
+            )}
           </ul>
           {filteredGroups.length > 5 && !searchQuery.trim() && (
             <button
