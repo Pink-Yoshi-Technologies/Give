@@ -10,7 +10,7 @@ const UserCard = ({ user, group, timeLeft }) => {
         <img
           src={user.profilePic}
           alt={user.name}
-          className={clsx('w-full h-full rounded-full border-2 border-[#D9D9D9] p-2', { 'bg-white': user.profilePic })}
+          className={clsx('w-full h-full rounded-full border-2 border-darkGrey p-2', { 'bg-white': user.profilePic })}
         />
       </div>
       <div className="text-left px-4 flex flex-col justify-center">

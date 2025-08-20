@@ -1,6 +1,7 @@
 import React, { useState } from "react";
+import clsx from "clsx";
 
-export default function Grouptab() {
+export default function GroupTab({ id }) {
   const [showMembers, setShowMembers] = useState(false);
 
   const members = [
@@ -11,16 +12,28 @@ export default function Grouptab() {
     "@katesmith0001",
     "@katesmith0001",
   ];
+  const group = {
+    id: "1",
+    name: "Group 1",
+    profilePic: "group1.jpg",
+    members: members,
+  };
 
   return (
-    <div className="w-full rounded-xl">
-      <div className="bg-backgroundGrey rounded-3xl p-3">
+    <div className="w-full rounded-xl h-full">
+      <div className={`bg-backgroundGrey rounded-3xl p-3 flex flex-col ${showMembers ? 'h-full' : ''}`}>
         {/* Group Header */}
         <div className="flex items-center p-4 rounded-xl  bg-defaultYellow gap-3">
-          <div className="w-10 h-10 rounded-full bg-gray-300" />
+          <div className={clsx("w-10 h-10 rounded-full overflow-hidden border-2 border-white", { "bg-gray-300": !group.profilePic })}>
+            <img
+              src={group.profilePic ? `images/${group.profilePic}` : "/images/placeholder.svg"}
+              alt={`${group.name} profile`}
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div>
-            <p className="font-semibold text-base text-black">Group 1</p>
-            <p className="text-xs text-black-600">6 members</p>
+            <p className="font-semibold text-base text-black">{"Group "+ id}</p>
+            <p className="text-xs text-black-600">{group.members.length} members</p>
           </div>
         </div>
 
@@ -29,7 +42,7 @@ export default function Grouptab() {
           <h3 className="text-sm font-semibold text-left text-black">
             Most Used Tags
           </h3>
-          <ul className="text-xs mt-2 space-y-1 font-medium text-black">
+          <ul className="text-xs mt-2 leading-6 font-medium text-black">
             <li className="flex justify-between items-center cursor-pointer pl-2">
               #snacks{" "}
               <img
@@ -58,7 +71,7 @@ export default function Grouptab() {
         </div>
 
         {/* View Members */}
-        <div className="mt-5">
+        <div className='mt-5 with-scrollbar overflow-y-auto flex-1'>
           <button
             className="flex justify-between w-full font-semibold text-sm"
             onClick={() => setShowMembers(!showMembers)}
@@ -91,7 +104,7 @@ export default function Grouptab() {
 
           <div
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              showMembers ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+              showMembers ? "max-h-96 opacity-100" : "max-h-0 opacity-0 hidden with-scrollbar"
             }`}
           >
             <ul className="mt-3 space-y-2">

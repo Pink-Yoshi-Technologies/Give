@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -10,6 +10,7 @@ import "./styles/App.css";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import CreateAccount from "./pages/CreateAccount";
+import Group from "./pages/Group";
 
 async function getPostData() {
   try {
@@ -59,11 +60,15 @@ function App() {
     {
       element: <AppLayout postData={postData} />,
       children: [
-        {
-          path: "/home",
-          element: <Home postData={postData} />,
-        },
-      ],
+      {
+        path: "/home",
+        element: <Home postData={postData} />,
+      },
+      {
+        path: "/group",
+        element: <Group postData={postData} />,
+      },
+    ],
     },
   ]);
 

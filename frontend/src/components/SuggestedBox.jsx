@@ -13,7 +13,7 @@ export default function SuggestedBox() {
       const { id, name, profilePic } = group;
       return (
         <li className="flex items-center rounded-xl gap-4 p-2 hover:bg-gray-100 cursor-pointer">
-          <a href={`/group&id=${id}`} className="font-semibold text-base text-black">{name}</a>
+          <a href={`/group?id=${id}`} className="font-semibold text-base text-black">{name}</a>
         </li>
       )
     }
@@ -49,7 +49,7 @@ export default function SuggestedBox() {
           <h3 className="text-sm font-semibold text-left text-black">Groups</h3>
           <ul className="text-xs mt-2 leading-6 font-medium text-black">
             {groups.map((group) => (
-               <a href={`/group&id=${group.id}`}>
+               <a href={`/group?id=${group.id}`}>
                 <li key={group.id} className="flex justify-between items-center cursor-pointer pl-2">
                   {group.name}
                     <img

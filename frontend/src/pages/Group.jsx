@@ -1,8 +1,9 @@
 import React from "react";
-import { Post, SuggestedBox, UserInfo, NavBar, ScreenTab, GroupSearch } from "../";
+import { Post, GroupTab, UserInfo, NavBar, ScreenTabGroup, GroupSearch } from "../";
 import { useState, useMemo } from "react";
 
-function HomeScreen({ postData }) {
+const Group = ({postData}) => {
+  const id = new URLSearchParams(window.location.search).get('id');
   const [searchQuery, setSearchQuery] = useState("");
   
     const handleSearchChange = (e) => {
@@ -18,10 +19,12 @@ function HomeScreen({ postData }) {
 
   // Hardcoded list for now; replace with fetched DB data later
   const posts = [
-    postData, 
+    {...postData}, 
     { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
     { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
   ];
+
+  console.log('postData: ', postData)
 
 
   return (
@@ -34,21 +37,23 @@ function HomeScreen({ postData }) {
       {/* min-h-0 lets children shrink and scroll correctly */}
       <main className="flex flex-1 min-h-0">
         {/* left column */}
-        <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen overflow-y-auto flex-shrink-0">
+        <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0">
           <UserInfo />
-          <ScreenTab />
-          <SuggestedBox />
+          <ScreenTabGroup />
+          <div className="flex-1 overflow-y-hidden">
+            <GroupTab id={id} />
+          </div>
         </aside>
 
-        {/* center column */}
+        {/* Centre column */}
         <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
-          {posts.map((p) => (
+          {posts.map((post) => (
             <Post
-              key={p.post.id}
-              user={p.user}
-              group={p.group}
-              post={p.post}
-              pollOptions={p.pollOptions}
+              key={post.id}
+              user={postData.user}
+              group={postData.group}
+              post={postData.post}
+              pollOptions={post.pollOptions}
             />
           ))}
         </section>
@@ -63,4 +68,4 @@ function HomeScreen({ postData }) {
   );
 }
 
-export default HomeScreen;
+export default Group;

@@ -25,5 +25,7 @@ export { default as SuggestedBox } from './components/SuggestedBox';
 export { default as NavBar } from './components/NavBar';
 export { default as UserInfo } from './components/UserInfo';
 export { default as ScreenTab } from './components/ScreenTab';
+export { default as ScreenTabGroup } from './components/ScreenTabGroup';
 export { default as GroupSearch } from './components/GroupSearch';
 export { default as CreateAccount } from './pages/CreateAccount';
+export { default as Group } from './pages/Group';

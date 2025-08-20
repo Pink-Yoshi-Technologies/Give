@@ -42,6 +42,17 @@ export default function ScreenTab() {
               />
               <p className="font-semibold text-base text-black">Create Post</p>
         </Link>
+                <Link
+            to="/create"
+            className="flex items-center p-2 rounded-xl bg-backgroundGrey gap-3 hover:bg-lightYellow"
+          >
+              <img
+                src="/groups.svg"
+                alt="groups icon"
+                style={{ width: "1.5em", height: "1.5em" }}
+              />
+              <p className="font-semibold text-base text-black">View Group</p>
+        </Link>
       </div>
     </div>
   );

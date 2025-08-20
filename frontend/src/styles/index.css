@@ -28,17 +28,10 @@ code {
   scrollbar-width: thin;
   scrollbar-color: theme('colors.darkGrey') transparent;
 }
-.with-scrollbar::-webkit-scrollbar {
-    width: 0.5rem;
-    background-color: transparent;
-    background: theme('colors.darkGrey');
-}
+
 .with-scrollbar::-webkit-scrollbar-thumb {
     background-color: theme('colors.darkGrey');
     border-radius: 0.25rem;
-    &:hover {
-      background-color: black;
-    }
 
     &:active {
       background-color: theme('colors.darkGrey');

@@ -6,8 +6,8 @@ import clsx from "clsx";
 
 export default function GroupSearch() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [expanded, setExpanded] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   const inputRef = useRef(null);
 
   const handleSearchChange = (e) => {
@@ -63,7 +63,7 @@ export default function GroupSearch() {
     const { id, name, profilePic } = group;
     return (
       <li className="flex items-center rounded-xl gap-4 p-2 cursor-pointer group">
-        <div className={clsx("w-10 h-10 rounded-full overflow-hidden", { "bg-gray-300": !profilePic })}>
+        <div className={clsx("w-10 h-10 rounded-full border-2 border-darkGrey overflow-hidden", { "bg-gray-300": !profilePic })}>
           <img
             src={`images/${profilePic}` ?? "/images/placeholder.svg"}
             alt={`${name} profile`}
@@ -71,7 +71,7 @@ export default function GroupSearch() {
           />
         </div>
         <a
-          href={`/group&id=${id}`}
+          href={`/group?id=${id}`}
           className="font-semibold text-base text-black group-hover:text-black/40"
         >
           {name}

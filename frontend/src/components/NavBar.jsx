@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as NotificationIcon } from "../assets/notification.svg";
 import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
+import clsx from "clsx";
 
   const credibleResponses = [
     { label: "Group 1", url: "/groups&id=1" },
@@ -13,6 +14,11 @@ import { ReactComponent as SettingsIcon } from "../assets/settings.svg";
     { label: "#dinner", url: "/tags&id=dinner" },
     { label: "#hair", url: "/tags&id=hair" },
   ];
+  const user = {
+    id: "1",
+    name: "Kate Smith",
+    profilePic: "https://placehold.co/600x400.png",
+  };
 
 function NavBar() {
   
@@ -119,14 +125,14 @@ function NavBar() {
       
       <div className="flex items-center gap-4 w-[27%] justify-end">
         <div className="flex items-center gap-2 cursor-pointer rounded-[25px]">
-          <div className="w-[45px] h-[45px]">
+          <div className={clsx("w-[45px] h-[45px] rounded-full border-2 border-darkGrey", { "bg-gray-300": !user.profilePic })}>
             <img
-              src="https://placehold.co/600x400.png"
+              src={user.profilePic}
               alt="User Avatar"
               className="w-full h-full rounded-full object-cover"
             />
           </div>
-          <span className="font-medium text-gray-700 text-lg">Kate Smith</span>
+          <span className="font-medium text-gray-700 text-lg font-semibold">{user.name}</span>
         </div>
 
         <button className="rounded-full flex items-center justify-center">
