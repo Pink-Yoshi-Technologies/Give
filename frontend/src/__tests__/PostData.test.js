@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import PostData from '../components/PostData/PostData';
+import PostData from '../components/PostData.jsx';
 
 describe('PostData', () => {
   it('renders question and images', () => {

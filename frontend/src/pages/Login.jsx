@@ -1,24 +1,36 @@
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
+import mapAuthError from '../utils/authErrors';
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const navigate = useNavigate();
 
   const handleLogin = async () => {
     setError("");
     setSuccess("");
     try {
-      // Appropriate method name for firebase authentication in particular
+      // If a different user is currently signed in, sign them out first
+      if (auth.currentUser && auth.currentUser.email && auth.currentUser.email !== email) {
+        if (process.env.NODE_ENV !== 'production') console.log('Signing out current user before sign-in attempt', auth.currentUser.email);
+        try {
+          await signOut(auth);
+        } catch (signOutErr) {
+          if (process.env.NODE_ENV !== 'production') console.error('Failed to sign out existing user before signIn:', signOutErr);
+          // proceed to attempt sign-in anyway
+        }
+      }
       await signInWithEmailAndPassword(auth, email, password);
       setSuccess("Logged in successfully");
-      // navigate to home here
-      // eg setTimeout(() => { navigate("/home");}, 2000);
-    } catch (error) {
-      setError(error.message);
+      // redirect to home
+      setTimeout(() => navigate("/home"), 400);
+    } catch (err) {
+      setError(mapAuthError(err));
     }
   };
 
@@ -67,10 +79,9 @@ const Login = () => {
           <button className="border-none text-gray-500 text-sm underline pb-2 self-center hover:text-black">
             Forgot Account?
           </button>
-          <button className="bg-defaultYellow text-white py-3 rounded-lg text-lg hover:bg-[#d2b122] transition-colors"
-            onClick={() => {
-              // navigate to signup page
-            }}
+          <button
+            className="bg-defaultYellow text-white py-3 rounded-lg text-lg hover:bg-[#d2b122] transition-colors"
+            onClick={() => navigate("/create-account")}
           >
             Create Account
           </button>

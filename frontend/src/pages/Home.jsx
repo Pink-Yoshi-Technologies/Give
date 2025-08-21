@@ -1,8 +1,11 @@
 import React from "react";
 import { Post, SuggestedBox, UserInfo, NavBar, ScreenTab, GroupSearch } from "../";
 import { useState, useMemo } from "react";
+import { useAuth } from '../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 function HomeScreen({ postData }) {
+  const { user, loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   
     const handleSearchChange = (e) => {
@@ -23,6 +26,9 @@ function HomeScreen({ postData }) {
     { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
   ];
 
+
+  if (loading) return null; // or a loader
+  if (!user) return <Navigate to="/" replace />; // or to login page
 
   return (
     <div className="font-sans">

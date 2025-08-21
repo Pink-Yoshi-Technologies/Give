@@ -10,6 +10,8 @@ import "./styles/App.css";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import CreateAccount from "./pages/CreateAccount";
+import { AuthProvider } from './contexts/AuthContext';
+import RequireAuth from './components/RequireAuth';
 import Group from "./pages/Group";
 
 async function getPostData() {
@@ -62,7 +64,7 @@ function App() {
       children: [
       {
         path: "/home",
-        element: <Home postData={postData} />,
+        element: <RequireAuth><Home postData={postData} /></RequireAuth>,
       },
       {
         path: "/group",
@@ -72,7 +74,11 @@ function App() {
     },
   ]);
 
-  return <RouterProvider router={router} />;
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  );
 }
 
 export default App;

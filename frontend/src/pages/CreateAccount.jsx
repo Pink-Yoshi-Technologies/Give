@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase";
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
+import mapAuthError from '../utils/authErrors';
+
+// API URL (set REACT_APP_API_URL in .env or it will default to localhost:5000)
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const CreateAccount = () => {
     const [form, setForm] = useState({
@@ -13,6 +18,8 @@ const CreateAccount = () => {
     });
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,16 +29,80 @@ const CreateAccount = () => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        if (form.password !== form.confirmPassword) {
-            setError('Passwords do not match');
+        // basic validation
+        if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword || !form.birthday) {
+            setError('Please fill in all the fields.');
             return;
         }
+        if (form.password !== form.confirmPassword) {
+            setError('Passwords do not match.');
+            return;
+        }
+        if (form.password.length < 6) {
+            setError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        setSubmitting(true);
         try {
-            await createUserWithEmailAndPassword(auth, form.email, form.password);
+            const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
+            const user = userCredential.user;
+
+            // Update profile displayName
+            await updateProfile(user, {
+                displayName: `${form.firstName} ${form.lastName}`
+            });
+
+            // Send profile to backend which uses Admin SDK to write to Firestore
+            try {
+                const token = await (user.getIdToken ? user.getIdToken() : auth.currentUser.getIdToken());
+                const res = await fetch(`${API_URL}/api/saveProfile`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({
+                        firstName: form.firstName,
+                        lastName: form.lastName,
+                        displayName: `${form.firstName} ${form.lastName}`,
+                        email: form.email,
+                        birthday: form.birthday || null,
+                    }),
+                });
+                if (!res.ok) {
+                    const body = await res.json().catch(() => ({}));
+                    const serverMsg = body.error || `Server responded ${res.status}`;
+                    console.error('Backend saveProfile error:', serverMsg);
+                    throw new Error(serverMsg);
+                }
+            } catch (fireErr) {
+                console.error('Failed to save profile via backend:', fireErr);
+                // Attempt to rollback: delete the newly created auth user so no orphan account exists
+                try {
+                    // prefer the user object we have
+                    if (user && user.delete) {
+                        await user.delete();
+                    } else if (auth.currentUser) {
+                        await auth.currentUser.delete();
+                    }
+                    setError('Failed to save profile. Account creation was rolled back. Please try again.');
+                } catch (delErr) {
+                    console.error('Failed to delete user after profile save failure:', delErr);
+                    setError('Failed to save profile, and automatic rollback failed. Please contact support.');
+                }
+                setSubmitting(false);
+                return;
+            }
+
             setSuccess('Account created successfully!');
-            // Navigate to login or home
+            // Navigate to home page
+            navigate('/home');
         } catch (err) {
-            setError(err.message);
+            // map firebase/internal errors to friendly messages
+            setError(mapAuthError(err));
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -160,10 +231,11 @@ const CreateAccount = () => {
 
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     {success && <p className="text-green-500 text-sm">{success}</p>}
+
                     <div>
                         <button
                         type="submit"
-                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent font-extrabold rounded-md text-white bg-yellow-300 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition duration-150 ease-in-out"
+                        className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-base rounded-md text-white bg-defaultYellow hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 transition duration-150 ease-in-out"
                         >
                         Create Account
                         </button>
@@ -174,7 +246,8 @@ const CreateAccount = () => {
                             Already have an account?{' '}
                             <button
                                 type="button"
-                                className="font-medium text-yellow-400 hover:text-yellow-500 transition duration-150 ease-in-out"
+                                onClick={() => navigate('/')}
+                                className="font-medium text-yellow-500 hover:text-yellow-700 transition duration-150 ease-in-out"
                             >
                                 Sign in here
                             </button>

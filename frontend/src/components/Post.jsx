@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from 'prop-types';
 import UserCard from "./UserCard";
 import PostData from "./PostData";
 import PollBox from "./PollBox";
@@ -13,5 +14,22 @@ const Post = ({user, group, post, pollOptions}) => {
     </div>
   )
 }
+
+
+Post.propTypes = {
+  user: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    profilePic: PropTypes.string,
+  }).isRequired,
+  group: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+  }).isRequired,
+  post: PropTypes.shape({
+    question: PropTypes.string,
+    content: PropTypes.array,
+    timeLeft: PropTypes.string,
+  }).isRequired,
+  pollOptions: PropTypes.array.isRequired,
+};
 
 export default Post;

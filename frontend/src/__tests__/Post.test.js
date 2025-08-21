@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Post from '../components/Post/Post';
+import Post from '../components/Post.jsx';
 
 describe('Post', () => {
   it('renders UserCard, PostData, and PollBox', () => {

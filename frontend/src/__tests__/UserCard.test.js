@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import UserCard from '../components/UserCard/UserCard';
+import UserCard from '../components/UserCard.jsx';
 
 describe('UserCard', () => {
   const user = { name: 'testuser', profilePic: '/test.jpg' };
