@@ -62,7 +62,7 @@ function App() {
       children: [
       {
         path: "/home",
-        element: <RequireAuth><Home postData={postData} /></RequireAuth>,
+        element: <Home postData={postData} />,
       },
       {
         path: "/group",
