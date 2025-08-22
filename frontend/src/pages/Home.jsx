@@ -17,6 +17,7 @@ function HomeScreen({ postData }) {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTab, setCurrentTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("home");
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -47,7 +48,7 @@ function HomeScreen({ postData }) {
           {/* left column */}
           <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen overflow-y-auto flex-shrink-0">
             <UserInfo />
-            <ScreenTab onTabChange={setCurrentTab} />
+            <ScreenTab onTabChange={setActiveTab} activeTab={activeTab} />
             <SuggestedBox />
           </aside>
 

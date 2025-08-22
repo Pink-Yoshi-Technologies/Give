@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import mapAuthError from '../utils/authErrors';
 
 // API URL (set REACT_APP_API_URL in .env or it will default to localhost:5000)
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
 const CreateAccount = () => {
     const [form, setForm] = useState({

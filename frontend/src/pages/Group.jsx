@@ -9,6 +9,7 @@ const Group = ({postData}) => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user, loading } = useAuth();
 
+
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
@@ -21,10 +22,14 @@ const Group = ({postData}) => {
 
   // Hardcoded list for now; replace with fetched DB data later
   const posts = [
-    {...postData}, 
-    { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
-    { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
-  ];
+    postData && postData.post ? { ...postData } : null,
+    postData && postData.post
+      ? { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } }
+      : null,
+    postData && postData.post
+      ? { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } }
+      : null,
+  ].filter(Boolean); // removes any nulls
 
   console.log('postData: ', postData)
   // While auth is resolving, don't render anything (avoids flicker)
@@ -54,18 +59,18 @@ const Group = ({postData}) => {
           </div>
         </aside>
 
-        {/* Centre column */}
-        <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
-          {posts.map((post) => (
-            <Post
-              key={post.id}
-              user={postData.user}
-              group={postData.group}
-              post={postData.post}
-              // pollOptions={post.pollOptions}
-            />
-          ))}
-        </section>
+      {/* Centre column */}
+      <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
+        {posts.map((post) => (
+          <Post
+            key={post.post.id}
+            user={post.user}
+            group={post.group}
+            post={post.post}
+            // pollOptions={post.pollOptions}
+          />
+        ))}
+      </section>
 
         {/* right column */}
         <aside className="flex w-[27%] flex-col sticky top-0 max-h-screen flex-shrink-0 scrollbar-groupSearch">
