@@ -1,3 +1,4 @@
+
 import React from "react";
 import {
   Post,
@@ -8,6 +9,7 @@ import {
   GroupSearch,
   CreatePost,
 } from "../";
+
 import { useState, useMemo } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
@@ -17,6 +19,7 @@ function HomeScreen({ postData }) {
   const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentTab, setCurrentTab] = useState("home");
+  const [activeTab, setActiveTab] = useState("home");
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -27,13 +30,16 @@ function HomeScreen({ postData }) {
     console.log("Search for:", searchQuery);
     // TODO: route to results page or trigger fetch here
   };
-
-  // Hardcoded list for now; replace with fetched DB data later
-  // const posts = [
-  //   postData,
-  //   { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
-  //   { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
-  // ];
+// ...existing code...
+const posts = [
+  postData && postData.post ? { ...postData } : null,
+  postData && postData.post
+    ? { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } }
+    : null,
+  postData && postData.post
+    ? { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } }
+    : null,
+].filter(Boolean); // removes any nulls
 
   return (
     <div className="font-sans">
@@ -47,7 +53,7 @@ function HomeScreen({ postData }) {
           {/* left column */}
           <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen overflow-y-auto flex-shrink-0">
             <UserInfo />
-            <ScreenTab onTabChange={setCurrentTab} />
+            <ScreenTab onTabChange={setActiveTab} activeTab={activeTab} />
             <SuggestedBox />
           </aside>
 
@@ -70,6 +76,20 @@ function HomeScreen({ postData }) {
                   // pollOptions={p.polls ?? []}
                 />
               ))
+            )}
+            {currentTab === "home" && (
+// ...existing code...
+<section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
+  {posts.map((post) => (
+    <Post
+      key={post.post.id}
+      user={post.user}
+      group={post.group}
+      post={post.post}
+      // pollOptions={post.pollOptions}
+    />
+  ))}
+</section>
             )}
           </section>
 
