@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import clsx from "clsx";
 
-export default function GroupTab({ id }) {
+export default function GroupTab({ id , accessible = false}) {
   const [showMembers, setShowMembers] = useState(false);
 
   const members = [
@@ -35,72 +35,80 @@ export default function GroupTab({ id }) {
             <p className="font-semibold text-base text-black">{"Group "+ id}</p>
             <p className="text-xs text-black-600">{group.members.length} members</p>
           </div>
+          {!accessible ? (
+            <div>
+              <img
+                src="/lock.svg"
+                alt="lock"
+                style={{ width: "1.5em", height: "1.5em", margin: "0rem 0rem 0rem 1.5rem" }}
+              />
+            </div>
+          ) : null}
         </div>
 
         {/* Most Used Tags */}
         <div className="mt-5">
-          <h3 className="text-sm font-semibold text-left text-black">
+          <h3
+            className={`text-sm font-semibold text-left ${
+              accessible ? "text-black" : "text-black/40"
+            }`}
+          >
             Most Used Tags
           </h3>
-          <ul className="text-xs mt-2 leading-6 font-medium text-black">
-            <li className="flex justify-between items-center cursor-pointer pl-2">
-              #snacks{" "}
-              <img
-                src="/arrow.svg"
-                alt="arrow right"
-                style={{ width: "0.75em", height: "0.75em" }}
-              />
-            </li>
-            <li className="flex justify-between items-center cursor-pointer pl-2">
-              #movie{" "}
-              <img
-                src="/arrow.svg"
-                alt="arrow right"
-                style={{ width: "0.75em", height: "0.75em" }}
-              />
-            </li>
-            <li className="flex justify-between items-center cursor-pointer pl-2">
-              #dinner{" "}
-              <img
-                src="/arrow.svg"
-                alt="arrow right"
-                style={{ width: "0.75em", height: "0.75em" }}
-              />
-            </li>
+          <ul
+            className={`text-xs mt-2 leading-6 font-medium ${
+              accessible ? "text-black" : "text-black/40"
+            }`}
+          >
+            {["#snacks", "#movie", "#dinner"].map((tag, idx) => (
+              <li
+                key={idx}
+                className="flex justify-between items-center cursor-pointer pl-2"
+              >
+                {tag}
+                <img
+                  src="/arrow.svg"
+                  alt="arrow right"
+                  style={{
+                    width: "0.75em",
+                    height: "0.75em",
+                    filter: accessible ? "none" : "opacity(0.4)",
+                  }}
+                />
+              </li>
+            ))}
           </ul>
         </div>
 
-        {/* View Members */}
-        <div className='mt-5 with-scrollbar overflow-y-auto flex-1'>
+       {/* View Members */}
+        <div className="mt-5 with-scrollbar overflow-y-auto flex-1">
           <button
-            className="flex justify-between w-full font-semibold text-sm"
-            onClick={() => setShowMembers(!showMembers)}
+            className={`flex justify-between w-full font-semibold text-sm ${
+              accessible ? "text-black" : "text-black/40 cursor-default"
+            }`}
+            onClick={() => {
+              if (accessible) {
+                setShowMembers(!showMembers);
+              }
+            }}
+            disabled={!accessible} // prevent keyboard activation too
           >
             View Members
             <span>
-              {showMembers ? (
-                <img
-                  src="/arrow.svg"
-                  alt="arrow up"
-                  style={{
-                    width: "0.75em",
-                    height: "0.75em",
-                    transform: "rotate(-90deg)",
-                  }}
-                />
-              ) : (
-                <img
-                  src="/arrow.svg"
-                  alt="arrow down"
-                  style={{
-                    width: "0.75em",
-                    height: "0.75em",
-                    transform: "rotate(90deg)",
-                  }}
-                />
-              )}
+              <img
+                src="/arrow.svg"
+                alt={showMembers ? "arrow up" : "arrow down"}
+                style={{
+                  width: "0.75em",
+                  height: "0.75em",
+                  transform: showMembers ? "rotate(-90deg)" : "rotate(90deg)",
+                  opacity: accessible ? 1 : 0.4,
+                }}
+              />
             </span>
           </button>
+        </div>
+
 
           <div
             className={`overflow-hidden transition-all duration-500 ease-in-out ${
@@ -122,7 +130,6 @@ export default function GroupTab({ id }) {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 

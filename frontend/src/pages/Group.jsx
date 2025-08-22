@@ -1,10 +1,10 @@
 import React from "react";
-import { Post, GroupTab, UserInfo, NavBar, ScreenTabGroup, GroupSearch } from "../";
+import { Post, GroupTab, UserInfo, NavBar, ScreenTabGroup, GroupSearch, JoinGroup } from "../";
 import { useState, useMemo } from "react";
 import { useAuth } from '../contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 
-const Group = ({postData}) => {
+const Group = ({postData}, accessible) => {
   const id = new URLSearchParams(window.location.search).get('id');
   const [searchQuery, setSearchQuery] = useState("");
   const { user, loading } = useAuth();
@@ -61,6 +61,9 @@ const Group = ({postData}) => {
 
       {/* Centre column */}
       <section className="flex-1 min-w-0 flex flex-col gap-4 overflow-y-auto scrollbar-hide px-2">
+        {!accessible ? (
+        <JoinGroup id={id} />
+      ) : null}
         {posts.map((post) => (
           <Post
             key={post.post.id}
