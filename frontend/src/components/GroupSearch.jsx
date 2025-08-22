@@ -1,8 +1,9 @@
+
 import React, { useState, useRef, useEffect } from "react";
-import { onAuthStateChanged } from "firebase/auth";
-import { collection, doc, getDoc, getDocs, getFirestore, query, where } from "firebase/firestore";
-import { auth } from "../firebase";
+import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
+import { useAuth } from "../contexts/AuthContext";
 import clsx from "clsx";
+
 
 export default function GroupSearch() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -10,27 +11,22 @@ export default function GroupSearch() {
   const [expanded, setExpanded] = useState(false);
   const inputRef = useRef(null);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-    setShowDropdown(true);
-  };
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-  };
-
-  // Fetch user's groups from Firestore
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
 
+  const { user } = useAuth();
+
+  // Fetch groups for the current user from Firestore
   useEffect(() => {
-    let unsubscribe;
-    setLoadingGroups(true);
-    unsubscribe = onAuthStateChanged(auth, async (user) => {
+    const fetchGroups = async () => {
+      setLoadingGroups(true);
       if (user) {
         const db = getFirestore();
-        // Query groups where users array contains the current user's UID
-        const q = query(collection(db, "groups"), where("users", "array-contains", user.uid));
+        // Query groups where 'users' array contains the current user's UID
+        const q = query(
+          collection(db, "groups"),
+          where("users", "array-contains", user.uid)
+        );
         const groupSnap = await getDocs(q);
         const userGroups = groupSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setGroups(userGroups);
@@ -38,15 +34,16 @@ export default function GroupSearch() {
         setGroups([]);
       }
       setLoadingGroups(false);
-    });
-    return () => unsubscribe && unsubscribe();
-  }, []);
+    };
+    fetchGroups();
+  }, [user]);
 
-  const filteredGroups = groups.filter((group) =>
+  // Filter groups in memory based on search input
+  const filteredGroups = groups.filter(group =>
     group.name && group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close dropdown and clear input when clicking outside
+  // Close dropdown and clear input when clicking outside the search box
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (inputRef.current && !inputRef.current.contains(e.target)) {
@@ -59,6 +56,18 @@ export default function GroupSearch() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Handle search input change
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setShowDropdown(true);
+  };
+
+  // Prevent form submission from reloading the page
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+  };
+
+  // Renders a single group item in the list
   function GroupItem({ group }) {
     const { id, name, profilePic } = group;
     return (
@@ -79,7 +88,8 @@ export default function GroupSearch() {
       </li>
     );
   }
-  
+
+  // Determine which groups to display (filtered, expanded, or first 5)
   const displayedGroups =
     searchQuery.trim()
       ? filteredGroups
@@ -91,9 +101,10 @@ export default function GroupSearch() {
     <div className="w-full h-full relative">
       <div className={`bg-backgroundGrey rounded-3xl p-4 shadow-sm flex flex-col gap-4 ${expanded ? 'h-full' : ''}`}>
         <div>
-          <p className="font-semibold text-base text-black text-left">Groups</p>
+          <p className="font-semibold text-base text-black text-left">My Groups</p>
         </div>
 
+        {/* Search input */}
         <div className="flex gap-4">
           <div className="w-full max-w-[500px]" ref={inputRef}>
             <form onSubmit={handleSearchSubmit} className="w-full">
@@ -123,6 +134,7 @@ export default function GroupSearch() {
             </form>
           </div>
         </div>
+
         {/* List of Groups */}
         <div className={`flex flex-col gap-2 ${expanded ? "overflow-y-auto" : ""} with-scrollbar items-start`}>
           <ul className='flex flex-col gap-2 grow'>
@@ -131,16 +143,15 @@ export default function GroupSearch() {
             ) : displayedGroups.length === 0 ? (
               <li className="text-gray-500 text-sm">No groups found.</li>
             ) : (
-              displayedGroups.map((group) => (
-                <GroupItem key={group.id} group={group} />
-              ))
+              displayedGroups.map((group) => <GroupItem key={group.id} group={group} />)
             )}
           </ul>
+          {/* Expand/collapse button for long lists */}
           {filteredGroups.length > 5 && !searchQuery.trim() && (
             <button
               type="button"
-              className="right-2 p-2 rounded-full flex items-center justify-center "
-              onClick={() => setExpanded((prev) => !prev)}
+              className="right-2 p-2 rounded-full flex items-center justify-center"
+              onClick={() => setExpanded(prev => !prev)}
             >
               <p className="text-xs font-semibold text-black opacity-60 hover:opacity-100">
                 {expanded ? "Collapse" : "View All"}
