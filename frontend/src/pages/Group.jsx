@@ -1,21 +1,23 @@
 import React from "react";
 import { Post, GroupTab, UserInfo, NavBar, ScreenTabGroup, GroupSearch } from "../";
 import { useState, useMemo } from "react";
+import { useAuth } from '../contexts/AuthContext';
+import { Navigate } from 'react-router-dom';
 
 const Group = ({postData}) => {
   const id = new URLSearchParams(window.location.search).get('id');
   const [searchQuery, setSearchQuery] = useState("");
-  
-    const handleSearchChange = (e) => {
-      setSearchQuery(e.target.value);
-    };
-  
-    const handleSearchSubmit = (e) => {
-      e.preventDefault();
-      console.log("Search for:", searchQuery);
-      // TODO: route to results page or trigger fetch here
-    };
+  const { user, loading } = useAuth();
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    console.log("Search for:", searchQuery);
+    // TODO: route to results page or trigger fetch here
+  };
 
   // Hardcoded list for now; replace with fetched DB data later
   const posts = [
@@ -23,6 +25,13 @@ const Group = ({postData}) => {
     { ...postData, post: { ...postData.post, id: "p2", question: "Favourite movie snack?" } },
     { ...postData, post: { ...postData.post, id: "p3", question: "Dinner plans tonight?" } },
   ];
+
+  console.log('postData: ', postData)
+  // While auth is resolving, don't render anything (avoids flicker)
+  if (loading) return null;
+
+  // Redirect unauthenticated users to login
+  if (!user) return <Navigate to="/" replace />;
 
   console.log('postData: ', postData)
 
@@ -53,7 +62,7 @@ const Group = ({postData}) => {
               user={postData.user}
               group={postData.group}
               post={postData.post}
-              pollOptions={post.pollOptions}
+              // pollOptions={post.pollOptions}
             />
           ))}
         </section>

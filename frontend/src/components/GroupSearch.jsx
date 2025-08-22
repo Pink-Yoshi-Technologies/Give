@@ -1,19 +1,17 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import clsx from "clsx";
 
+const initialExpanded = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
+const initialSearch = localStorage.getItem("groupSearch") ?? "";
 
 export default function GroupSearch() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [expanded, setExpanded] = useState(false);
-  const inputRef = useRef(null);
-
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [expanded, setExpanded] = useState(initialExpanded);
   const [groups, setGroups] = useState([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
-
+  const inputRef = useRef(null);
   const { user } = useAuth();
 
   // Fetch groups for the current user from Firestore
@@ -38,28 +36,22 @@ export default function GroupSearch() {
     fetchGroups();
   }, [user]);
 
+  // Persist search query and expanded state to localStorage
+  useEffect(() => {
+    localStorage.setItem("groupSearch", searchQuery);
+  }, [searchQuery]);
+  useEffect(() => {
+    localStorage.setItem("groupsExpanded", JSON.stringify(expanded));
+  }, [expanded]);
+
   // Filter groups in memory based on search input
   const filteredGroups = groups.filter(group =>
     group.name && group.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Close dropdown and clear input when clicking outside the search box
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (inputRef.current && !inputRef.current.contains(e.target)) {
-        setShowDropdown(false);
-        setSearchQuery("");
-        setExpanded(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
   // Handle search input change
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    setShowDropdown(true);
   };
 
   // Prevent form submission from reloading the page
@@ -74,7 +66,7 @@ export default function GroupSearch() {
       <li className="flex items-center rounded-xl gap-4 p-2 cursor-pointer group">
         <div className={clsx("w-10 h-10 rounded-full border-2 border-darkGrey overflow-hidden", { "bg-gray-300": !profilePic })}>
           <img
-            src={`images/${profilePic}` ?? "/images/placeholder.svg"}
+            src={profilePic ? `images/${profilePic}` : "/images/placeholder.svg"}
             alt={`${name} profile`}
             className="w-full h-full object-cover"
           />
@@ -151,7 +143,7 @@ export default function GroupSearch() {
             <button
               type="button"
               className="right-2 p-2 rounded-full flex items-center justify-center"
-              onClick={() => setExpanded(prev => !prev)}
+              onClick={() => setExpanded((prev) => !prev)}
             >
               <p className="text-xs font-semibold text-black opacity-60 hover:opacity-100">
                 {expanded ? "Collapse" : "View All"}

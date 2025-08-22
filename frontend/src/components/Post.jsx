@@ -4,13 +4,13 @@ import UserCard from "./UserCard";
 import PostData from "./PostData";
 import PollBox from "./PollBox";
 
-const Post = ({user, group, post, pollOptions}) => {
+const Post = ({user, group, post}) => {
 
   return (
     <div className="w-full rounded-3xl p-4 bg-backgroundGrey flex flex-col items-center">
       <UserCard user={user} group={group} timeLeft={post.timeLeft} />
       <PostData post={post} />
-      <PollBox initialOptions={pollOptions} />
+      {/* <PollBox initialOptions={pollOptions} /> */}
     </div>
   )
 }
@@ -29,7 +29,7 @@ Post.propTypes = {
     content: PropTypes.array,
     timeLeft: PropTypes.string,
   }).isRequired,
-  pollOptions: PropTypes.array.isRequired,
+  // pollOptions: PropTypes.array.isRequired,
 };
 
 export default Post;

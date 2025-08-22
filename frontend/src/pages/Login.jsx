@@ -76,9 +76,6 @@ const Login = () => {
           >
             Log In
           </button>
-          <button className="border-none text-gray-500 text-sm underline pb-2 self-center hover:text-black">
-            Forgot Account?
-          </button>
           <button
             className="bg-defaultYellow text-white py-3 rounded-lg text-lg hover:bg-[#d2b122] transition-colors"
             onClick={() => navigate("/create-account")}
