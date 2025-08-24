@@ -1,3 +1,17 @@
+/**
+ * CreateAccount page
+ *
+ * Renders the "Create Account" form and handles creating a new user account.
+ * - Validates input client-side
+ * - Creates a Firebase Auth user (email + password)
+ * - Updates the Auth user's displayName
+ * - Sends a profile save request to the backend, and rolls back the Auth user if backend save fails
+ *
+ * Usage:
+ *  - Route to this page for new user registration.
+ *
+ * @module CreateAccount
+ */
 import React, { useState } from 'react';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -8,6 +22,16 @@ import mapAuthError from '../utils/authErrors';
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
 const CreateAccount = () => {
+    /**
+     * Component state: form values, UI flags and messages.
+     * @typedef {Object} FormState
+     * @property {string} firstName
+     * @property {string} lastName
+     * @property {string} email
+     * @property {string} password
+     * @property {string} confirmPassword
+     * @property {string} birthday
+     */
     // form state to hold all input values
     const [form, setForm] = useState({
         firstName: '',
@@ -24,12 +48,27 @@ const CreateAccount = () => {
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
-    // input change handler updates corresponding form field
+    /**
+     * Generic input change handler updates corresponding form field.
+     *
+     * @param {React.ChangeEvent<HTMLInputElement>} e - The input change event
+     * @returns {void}
+     */
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    // form submit handler: validation -> create auth user -> update profile -> save to backend
+    /**
+     * Form submit handler:
+     *  - Performs basic client-side validation
+     *  - Creates a Firebase Auth user using email/password
+     *  - Updates the Auth user's display name
+     *  - Sends a profile save request to the backend authenticated with the user's ID token
+     *  - Rolls back (deletes) the Auth user if the backend save fails
+     *
+     * @param {React.FormEvent<HTMLFormElement>} e - Form submit event
+     * @returns {Promise<void>}
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
