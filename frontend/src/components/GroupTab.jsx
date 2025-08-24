@@ -12,7 +12,7 @@ import { db } from "../firebase";
  * @param {string} param0.id - The ID of the group.
  * @returns {JSX.Element}
  */
-export default function GroupTab({ id }) {
+export default function GroupTab({ id, accessible = true }) {
   const [showMembers, setShowMembers] = useState(false);
   const [group, setGroup] = useState(null);
   const [memberNames, setMemberNames] = useState([]);
@@ -76,95 +76,100 @@ export default function GroupTab({ id }) {
   }, [id]);
 
   return (
-    <div className="w-full rounded-xl h-full">
-      <div className={`bg-backgroundGrey rounded-3xl p-3 flex flex-col ${showMembers ? 'h-full' : ''}`}>
-        {/* Group Header */}
-        <div className="flex items-center p-4 rounded-xl  bg-defaultYellow gap-3">
-          <div className={clsx("w-10 h-10 rounded-full overflow-hidden border-2 border-white", { "bg-gray-300": !group?.profilePic })}>
+  <div className="w-full rounded-xl h-full">
+    <div className={`bg-backgroundGrey rounded-3xl p-3 flex flex-col ${showMembers ? 'h-full' : ''}`}>
+      {/* Group Header */}
+      <div className="flex items-center p-4 rounded-xl bg-defaultYellow gap-3">
+        <div
+          className={clsx(
+            "w-10 h-10 rounded-full overflow-hidden border-2 border-white",
+            { "bg-gray-300": !group?.profilePic }
+          )}
+        >
+          <img
+            src={group?.profilePic ? `images/${group.profilePic}` : "/images/placeholder.svg"}
+            alt={`${group?.name || `Group ${id}`} profile`}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="flex flex-col items-start">
+          <p className="font-semibold text-base text-black">{group?.name || `Group ${id}`}</p>
+          <span className="text-xs text-black-600 mt-1">{memberNames.filter(Boolean).length} members</span>
+        </div>
+        {!accessible && (
+          <div>
             <img
-              src={group?.profilePic ? `images/${group.profilePic}` : "/images/placeholder.svg"}
-              alt={`${group?.name || "Group"} profile`}
-              className="w-full h-full object-cover"
+              src="/lock.svg"
+              alt="lock"
+              style={{ width: "1.5em", height: "1.5em", marginLeft: "1.5rem" }}
             />
           </div>
-          <div className="flex flex-col items-start">
-            <p className="font-semibold text-base text-black">{group ? group.name : `Group ${id}`}</p>
-            <span className="text-xs text-black-600 mt-1">{memberNames.filter(Boolean).length} members</span>
-          </div>
-        </div>
+        )}
+      </div>
 
-        {/* Most Used Tags */}
-        <div className="mt-5">
-          <h3 className="text-sm font-semibold text-left text-black">
-            Most Used Tags
-          </h3>
-          <ul className="text-xs font-semibold mt-2 leading-6 font-medium text-black">
-            {mostUsedTags.length === 0 ? (
-              <li className="pl-2">No tags found</li>
-            ) : (
-              mostUsedTags.map((tag) => (
-                <li key={tag} className="flex justify-between items-center cursor-pointer pl-2">
-                  {tag}
-                </li>
-              ))
-            )}
+      {/* Most Used Tags */}
+      <div className="mt-5">
+        <h3 className={`text-sm font-semibold text-left ${accessible ? "text-black" : "text-black/40"}`}>
+          Most Used Tags
+        </h3>
+        <ul className="text-xs font-semibold mt-2 leading-6 font-medium text-black">
+          {mostUsedTags.length === 0 ? (
+            <li className={`pl-2 ${!accessible ? "text-black/40" : ""}`}>No tags found</li>
+          ) : (
+            mostUsedTags.map((tag) => (
+              <li key={tag} className="flex justify-between items-center cursor-pointer pl-2">
+                {tag}
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+
+      {/* View Members */}
+      <div className="mt-5 with-scrollbar overflow-y-auto flex-1">
+        <button
+          className={`flex justify-between w-full font-semibold text-sm ${
+            accessible ? "text-black" : "text-black/40 cursor-default"
+          }`}
+          onClick={() => { if (accessible) setShowMembers(!showMembers); }}
+          disabled={!accessible}
+        >
+          View Members
+          <span>
+            <img
+              src="/arrow.svg"
+              alt={showMembers ? "arrow up" : "arrow down"}
+              style={{
+                width: "0.75em",
+                height: "0.75em",
+                transform: showMembers ? "rotate(-90deg)" : "rotate(90deg)",
+                opacity: accessible ? 1 : 0.4,
+              }}
+            />
+          </span>
+        </button>
+
+        <div
+          className={`overflow-hidden transition-all duration-500 ease-in-out ${
+            showMembers ? "opacity-100" : "max-h-0 opacity-0 hidden with-scrollbar"
+          }`}
+          style={showMembers ? { maxHeight: `${memberNames.length * 40}px` } : { maxHeight: 0 }}
+        >
+          <ul className="mt-3 space-y-2">
+            {memberNames.map((displayName, index) => (
+              <li key={index} className="flex items-center gap-2 text-sm">
+                <img
+                  src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
+                  alt="avatar"
+                  className="w-5 h-5"
+                />
+                {displayName}
+              </li>
+            ))}
           </ul>
-        </div>
-
-        {/* View Members */}
-        <div className='mt-5 with-scrollbar overflow-y-auto'>
-          <button
-            className="flex justify-between w-full font-semibold text-sm"
-            onClick={() => setShowMembers(!showMembers)}
-          >
-            View Members
-            <span>
-              {showMembers ? (
-                <img
-                  src="/arrow.svg"
-                  alt="arrow up"
-                  style={{
-                    width: "0.75em",
-                    height: "0.75em",
-                    transform: "rotate(-90deg)",
-                  }}
-                />
-              ) : (
-                <img
-                  src="/arrow.svg"
-                  alt="arrow down"
-                  style={{
-                    width: "0.75em",
-                    height: "0.75em",
-                    transform: "rotate(90deg)",
-                  }}
-                />
-              )}
-            </span>
-          </button>
-
-          <div
-            className={`overflow-hidden transition-all duration-500 ease-in-out ${
-              showMembers ? "opacity-100" : "max-h-0 opacity-0 hidden with-scrollbar"
-            }`}
-            style={showMembers ? { maxHeight: `${memberNames.length * 40}px` } : { maxHeight: 0 }}
-          >
-            <ul className="mt-3 space-y-2">
-              {memberNames.map((displayName, index) => (
-                <li key={index} className="flex items-center gap-2 text-sm">
-                  <img
-                    src="https://cdn-icons-png.flaticon.com/512/1946/1946429.png"
-                    alt="avatar"
-                    className="w-5 h-5"
-                  />
-                  {displayName}
-                </li>
-              ))}
-            </ul>
-          </div>
         </div>
       </div>
     </div>
-  );
+  </div>
+);
 }
-

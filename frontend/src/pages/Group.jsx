@@ -2,7 +2,7 @@ import React from "react";
 import AppLayout from "../layouts/AppLayout";
 import LeftSidebar from "../components/LeftSideBar";
 import PostsList from "../components/PostsList";
-import { GroupTab, GroupSearch, CreatePost } from "../";
+import { GroupTab, GroupSearch, CreatePost, JoinGroup } from "../"; // make sure JoinGroup exists
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { usePosts } from "../hooks/UsePosts";
@@ -12,6 +12,8 @@ export default function Group() {
   const id = new URLSearchParams(window.location.search).get("id");
   const { user, loading: authLoading } = useAuth();
   const { posts, loading: postsLoading } = usePosts();
+
+  const accessible = false;
 
   const currentTab = "group";
   const handleTabChange = () => {};
@@ -30,12 +32,16 @@ export default function Group() {
           }}
           extra={
             <div className="flex-1 overflow-y-hidden">
-              <GroupTab id={id} />
+              <GroupTab id="1" accessible={false} />
             </div>
           }
         />
       }
-      center={<PostsList posts={posts} />}
+      center={
+        <div className="flex-1 overflow-y-auto">
+          {accessible ? <PostsList posts={posts} /> : <JoinGroup id={id} />}
+        </div>
+      }
       right={<GroupSearch />}
     />
   );
