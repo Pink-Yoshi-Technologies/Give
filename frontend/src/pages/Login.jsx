@@ -1,3 +1,11 @@
+/**
+ * Login page component for user authentication.
+ * Renders login form and handles login logic.
+ *
+ * @component
+ * @param {Object} props - Component props
+ */
+// Handles user login, form validation, and error display.
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";

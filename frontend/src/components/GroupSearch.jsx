@@ -7,6 +7,11 @@ import clsx from "clsx";
 const initialExpanded = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
 const initialSearch = localStorage.getItem("groupSearch") ?? "";
 
+/**
+ * GroupSearch component allows users to search and filter their groups.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function GroupSearch() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [expanded, setExpanded] = useState(initialExpanded);
