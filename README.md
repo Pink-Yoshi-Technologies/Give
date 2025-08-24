@@ -30,29 +30,21 @@ The following should be installed:
   npm install react-slick slick-carousel
   ```
 
-***Set up environment variables***
-```
-go to the frontend folder
-add a file called .env
-add the required firebase configurations to it
+**Set up environment variables**
 
-go to the backend folder 
-add a file called .env
-add the port and firebase service account key
-```
+Please contact us for ENV and API key instructions. Contact details can be found on the [wiki](../../wiki/Contributors).
 
-***Connect to firebase***[wiki](../../wiki)
-``` 
-To access the database, see further instructions on the wiki.
-```
+**Connect to firebase** 
+
+To access the database, see further instructions on the [wiki](../../wiki).
   
 **Run the app locally**
   ```
   cd frontend
   npm start
-
-  and 
-
+```
+and
+```
   cd backend 
   node index.js
 
@@ -87,8 +79,10 @@ Currently we only have 1 version available
 
 ## Where can I get more help, if I need it?
 We have multiple resources for providing help if need be. 
-**Wiki:** [wiki](../../wiki)
-Our Wiki includes additional documentation and outlines how to use the project. 
+
+**Wiki:** 
+
+Our [wiki](../../wiki) includes additional documentation and outlines how to use the project. 
 
 **Issues**  If you run into bugs or have feature requests, please check the [issues](./issues) page or create a new one.
 
