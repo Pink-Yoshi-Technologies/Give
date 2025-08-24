@@ -1,24 +1,52 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "../layouts/AppLayout";
 import LeftSidebar from "../components/LeftSideBar";
 import PostsList from "../components/PostsList";
-import { GroupTab, GroupSearch, CreatePost, JoinGroup } from "../"; // make sure JoinGroup exists
+import { GroupTab, GroupSearch, CreatePost, JoinGroup } from "../";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate } from "react-router-dom";
 import { usePosts } from "../hooks/UsePosts";
 import { groupTabConfig } from "../config/tabConfig";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function Group() {
   const id = new URLSearchParams(window.location.search).get("id");
   const { user, loading: authLoading } = useAuth();
   const { posts, loading: postsLoading } = usePosts();
 
-  const accessible = false;
+  const [accessible, setAccessible] = useState(false);
+  const [loadingGroup, setLoadingGroup] = useState(true);
 
   const currentTab = "group";
   const handleTabChange = () => {};
 
-  if (authLoading) return null;
+  useEffect(() => {
+  async function checkMembership() {
+    if (!id || !user) return;
+    try {
+      const groupRef = doc(db, "groups", id);
+      const groupSnap = await getDoc(groupRef);
+      if (groupSnap.exists()) {
+        const groupData = groupSnap.data();
+        const usersArray = Array.isArray(groupData.users) ? groupData.users : [];
+        // Use user.uid (Firebase Auth)
+        const isMember = usersArray.includes(user.uid);
+        setAccessible(isMember);
+      } else {
+        setAccessible(false);
+      }
+    } catch (err) {
+      console.error("Error fetching group:", err);
+      setAccessible(false);
+    } finally {
+      setLoadingGroup(false);
+    }
+  }
+  checkMembership();
+}, [id, user]);
+
+  if (authLoading || loadingGroup) return null;
   if (!user) return <Navigate to="/" replace />;
 
   return (
@@ -32,7 +60,7 @@ export default function Group() {
           }}
           extra={
             <div className="flex-1 overflow-y-hidden">
-              <GroupTab id="1" accessible={false} />
+              <GroupTab id="1" accessible={accessible} />
             </div>
           }
         />

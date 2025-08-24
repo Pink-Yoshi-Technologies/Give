@@ -12,7 +12,7 @@ import { db } from "../firebase";
  * @param {string} param0.id - The ID of the group.
  * @returns {JSX.Element}
  */
-export default function GroupTab({ id, accessible = true }) {
+export default function GroupTab({ id, accessible }) {
   const [showMembers, setShowMembers] = useState(false);
   const [group, setGroup] = useState(null);
   const [memberNames, setMemberNames] = useState([]);
