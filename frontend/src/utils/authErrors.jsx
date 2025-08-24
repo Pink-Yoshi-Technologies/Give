@@ -1,16 +1,48 @@
-// Maps Firebase Auth error codes/messages to user-friendly text
+/**
+ * authErrors module
+ *
+ * Translates Firebase Authentication errors into user-friendly messages suitable
+ * for display in the UI. Handles both structured error.code values and cases
+ * where the code is embedded inside the error.message string.
+ *
+ * @module authErrors
+ */
+
+/**
+ * Map a Firebase Auth error to a friendly string.
+ *
+ * This function prefers the canonical `err.code` (e.g. "auth/invalid-email"),
+ * but will attempt to extract an "auth/xxx" token from `err.message` if `code`
+ * is not present. Fallbacks inspect the message text for simple heuristics.
+ *
+ * @param {Error|object} err - The error object thrown by Firebase (may include `.code` and `.message`)
+ * @returns {string} A user-facing error message
+ *
+ * @example
+ * // With a canonical code:
+ * mapAuthError({ code: 'auth/wrong-password' }); // "Incorrect password. Please try again."
+ *
+ * @example
+ * // With message containing code:
+ * mapAuthError({ message: 'Firebase: Error (auth/invalid-credential).' }); // "The credentials provided are invalid. Please try again."
+ */
 const mapAuthError = (err) => {
   if (!err) return 'An unknown error occurred.';
-  // prefer canonical code, but some Firebase errors only include the code inside the message
+
+  // prefer the explicit error.code when available
   let code = err.code || '';
+
+  // raw message lowercased for message-based heuristics
   const rawMessage = err.message || '';
   const message = rawMessage.toLowerCase();
+
+  // if code missing, try to extract pattern like "auth/xxx" from the message
   if (!code) {
-    // try to extract "auth/xxx" from message like "Firebase: Error (auth/invalid-credential)."
     const m = rawMessage.match(/\(?(auth\/[a-z0-9-_.]+)\)?/i);
     if (m && m[1]) code = m[1].toLowerCase();
   }
 
+  // map known Firebase Auth codes to user-friendly messages
   switch (code) {
     case 'auth/email-already-in-use':
       return 'An account with this email already exists. Try signing in or use a different email.';
@@ -31,9 +63,11 @@ const mapAuthError = (err) => {
     case 'auth/permission-denied':
       return 'You do not have permission to perform this action.';
     default:
-      // fallback to simple patterns in message text
+      // fallback heuristics based on message content when no known code matched
       if (message.includes('email')) return 'There is a problem with the email provided.';
       if (message.includes('password')) return 'There is a problem with the password provided.';
+
+      // final fallback: return original message if present, otherwise generic notice
       return err.message || 'Something went wrong. Please try again.';
   }
 };
