@@ -4,10 +4,11 @@ import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
 import mapAuthError from '../utils/authErrors';
 
-// API URL (set REACT_APP_API_URL in .env or it will default to localhost:5000)
+// API URL (set to REACT_APP_API_URL in .env else default to localhost:5000)
 const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5002';
 
 const CreateAccount = () => {
+    // form state to hold all input values
     const [form, setForm] = useState({
         firstName: '',
         lastName: '',
@@ -16,20 +17,25 @@ const CreateAccount = () => {
         confirmPassword: '',
         birthday: ''
     });
+    // error and success messages shown to the user
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    // submitting flag to disable UI or show spinners if needed
     const [submitting, setSubmitting] = useState(false);
     const navigate = useNavigate();
 
+    // input change handler updates corresponding form field
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    // form submit handler: validation -> create auth user -> update profile -> save to backend
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
         setSuccess('');
-        // basic validation
+
+        // handle basic client-side validation
         if (!form.firstName || !form.lastName || !form.email || !form.password || !form.confirmPassword || !form.birthday) {
             setError('Please fill in all the fields.');
             return;
@@ -43,18 +49,20 @@ const CreateAccount = () => {
             return;
         }
 
-        setSubmitting(true);
+        setSubmitting(true); // disable multiple submissions
         try {
+            // create Firebase Auth user with email + password
             const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
             const user = userCredential.user;
 
-            // Update profile displayName
+            // update the Auth user's display name (so firebase auth has name)
             await updateProfile(user, {
                 displayName: `${form.firstName} ${form.lastName}`
             });
 
-            // Send profile to backend which uses Admin SDK to write to Firestore
+            // send profile to backend / users database (using Admin SDK to write to Firestore)
             try {
+                // obtain ID token to authenticate backend request
                 const token = await (user.getIdToken ? user.getIdToken() : auth.currentUser.getIdToken());
                 const res = await fetch(`${API_URL}/api/saveProfile`, {
                     method: 'POST',
@@ -70,6 +78,7 @@ const CreateAccount = () => {
                         birthday: form.birthday || null,
                     }),
                 });
+                // if backend responded with non-2xx, treat it as error
                 if (!res.ok) {
                     const body = await res.json().catch(() => ({}));
                     const serverMsg = body.error || `Server responded ${res.status}`;
@@ -78,16 +87,18 @@ const CreateAccount = () => {
                 }
             } catch (fireErr) {
                 console.error('Failed to save profile via backend:', fireErr);
-                // Attempt to rollback: delete the newly created auth user so no orphan account exists
+                // attempt to rollback: delete newly created auth user so no orphan account exists
                 try {
-                    // prefer the user object we have
+                    // prefer the user object we have from creation, else fallback to currentUser
                     if (user && user.delete) {
                         await user.delete();
                     } else if (auth.currentUser) {
                         await auth.currentUser.delete();
                     }
+                    // inform user account creation was rolled back
                     setError('Failed to save profile. Account creation was rolled back. Please try again.');
                 } catch (delErr) {
+                    // if deletion fails, log and show a support message
                     console.error('Failed to delete user after profile save failure:', delErr);
                     setError('Failed to save profile, and automatic rollback failed. Please contact support.');
                 }
@@ -95,35 +106,36 @@ const CreateAccount = () => {
                 return;
             }
 
+            // success path: profile saved and account created
             setSuccess('Account created successfully!');
-            // Navigate to home page
-            navigate('/home');
+            navigate('/home'); // go to homepage
         } catch (err) {
-            // map firebase/internal errors to friendly messages
+            // map firebase/internal errors to user friendly messages
             setError(mapAuthError(err));
         } finally {
             setSubmitting(false);
         }
     };
 
+    // JSX: layout and form fields, comments mark major UI sections
     return (
     <div className="min-h-screen bg-defaultPink font-[Nunito,Poppins,sans-serif]">
-      {/* Header with website name */}
+      {/* header with website name */}
       <div className="absolute top-0 left-0 p-6 z-20">
         <h1 className="text-4xl font-extrabold text-backgroundGrey font-header">GIVE</h1>
       </div>
       
-      {/* Bar Graph Design */}
+      {/* bar graph design */}
       <div className="fixed left-8 bottom-0 flex items-end space-x-2 z-0">
-        {/* Bar 1 */}
+        {/* bar 1 */}
         <div className="w-12 h-72 bg-lightPinkOpaque rounded-t-lg"></div>
-        {/* Bar 2 */}
+        {/* bar 2 */}
         <div className="w-12 h-96 bg-lightPinkOpaque rounded-t-lg"></div>
-        {/* Bar 3 */}
+        {/* bar 3 */}
         <div className="w-12 h-56 bg-lightPinkOpaque rounded-t-lg"></div>
       </div>
 
-      {/* Main content */}
+      {/* main content container */}
       <div className="flex items-start justify-end relative z-10 min-h-screen">
         <div className="mt-28 w-full mx-6 xl:mx-10 flex flex-col min-h-screen max-w-md sm:max-w-lg md:max-w-2xl lg:max-w-4xl xl:max-w-6xl">
             <div className="px-4 sm:px-6 lg:px-8 pb-8">
@@ -132,13 +144,14 @@ const CreateAccount = () => {
                 </p>
             </div>
 
+            {/* form: Collects name, email, password, birthday */}
             <form className="bg-backgroundGrey p-8 pb-0 rounded-t-3xl flex-1 flex flex-col" onSubmit={handleSubmit}>
                 <p className="text-left text-lg font-bold text-gray-900">
                     Create Account
                 </p>
                 <div className="mt-8 mx-10 space-y-4 flex-1 pb-8">
                     <div className="space-y-4">
-                        {/* First Name and Last Name */}
+                        {/* first + last name */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <input
@@ -165,7 +178,7 @@ const CreateAccount = () => {
                             </div>
                         </div>
 
-                        {/* Email */}
+                        {/* email */}
                         <div>
                             <input
                                 id="email"
@@ -179,7 +192,7 @@ const CreateAccount = () => {
                             />
                         </div>
 
-                        {/* Password */}
+                        {/* password */}
                         <div>
                             <input
                                 id="password"
@@ -193,7 +206,7 @@ const CreateAccount = () => {
                             />
                         </div>
 
-                        {/* Confirm Password */}
+                        {/* confirm password */}
                         <div>
                             <input
                                 id="confirmPassword"
@@ -207,7 +220,7 @@ const CreateAccount = () => {
                             />
                         </div>
 
-                        {/* Birthday */}
+                        {/* birthday */}
                         <div>
                             <label htmlFor="birthday" className="text-left block text-sm font-bold text-gray-700">
                                 Birthday
@@ -224,14 +237,16 @@ const CreateAccount = () => {
                         </div>
                     </div>
 
-                    {/* Disclaimer text */}
+                    {/* disclaimer text */}
                     <div className="text-left text-[10px] text-gray-500 leading-relaxed mt-6">
                         By Clicking Create Account, you agree to our Terms and Conditions and that you have read our Data Policy, including our Cookie Use. You may receive promotional Emails and SMS notifications and can opt out at any time.
                     </div>
 
+                    {/* display error or success messages */}
                     {error && <p className="text-red-500 text-sm">{error}</p>}
                     {success && <p className="text-green-500 text-sm">{success}</p>}
 
+                    {/* submit button */}
                     <div>
                         <button
                         type="submit"
@@ -241,6 +256,7 @@ const CreateAccount = () => {
                         </button>
                     </div>
 
+                    {/* link to sign in page */}
                     <div className="text-center">
                         <p className="text-gray-600">
                             Already have an account?{' '}
