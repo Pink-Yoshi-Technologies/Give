@@ -1,5 +1,12 @@
 import clsx from "clsx";
 
+/**
+ * UserCard component displays a user's avatar, name, and group.
+ *
+ * @param {Object} props - Component props
+ * @param {Object} props.user - User object containing user information
+ * @param {Object} props.group - Group object containing group information
+ */
 const UserCard = ({ user, group }) => {
   const name = user?.name;
   const profilePic = user?.profilePic || "/images/noPfp.jpg";
@@ -23,11 +30,13 @@ const UserCard = ({ user, group }) => {
         )}
       </div>
       <div className="text-left px-4 flex flex-col justify-center">
+        {/* Display username */}
         {name && (
           <p className="font-semibold text-[1.2rem] leading-4 lowercase">
             @{name}
           </p>
         )}
+        {/* Display group name if available */}
         {groupName && (
           <p className="text-xs leading-8">
             posted to <span className="font-semibold">{groupName}</span>

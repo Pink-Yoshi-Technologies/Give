@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import clsx from "clsx";
@@ -7,6 +6,11 @@ import clsx from "clsx";
 const initialExpanded = JSON.parse(localStorage.getItem("groupsExpanded")) ?? false;
 const initialSearch = localStorage.getItem("groupSearch") ?? "";
 
+/**
+ * GroupSearch component allows users to search and filter their groups.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function GroupSearch() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [expanded, setExpanded] = useState(initialExpanded);
@@ -72,27 +76,29 @@ export default function GroupSearch() {
             className="w-full h-full object-cover"
           />
         </div>
-        <Link
-          to={`/group/${id}`}
+        <a
+          href={`/group?id=${id}`}
           className="font-semibold text-base text-black group-hover:text-black/40"
         >
           {name}
-        </Link>
+        </a>
       </li>
     );
   }
 
   // Determine which groups to display (filtered, expanded, or first 5)
   const displayedGroups =
-    searchQuery.trim()
-      ? filteredGroups
-      : expanded
-      ? groups
-      : groups.slice(0, 5);
+  searchQuery.trim()
+    ? filteredGroups
+    : groups.length <= 5
+    ? groups
+    : expanded
+    ? groups
+    : groups.slice(0, 5);
 
   return (
     <div className="w-full h-full relative">
-      <div className={`bg-backgroundGrey rounded-3xl p-4 shadow-sm flex flex-col gap-4 ${expanded ? 'h-full' : ''}`}>
+  <div className="bg-backgroundGrey rounded-3xl p-4 shadow-sm flex flex-col gap-4">
         <div>
           <p className="font-semibold text-base text-black text-left">My Groups</p>
         </div>

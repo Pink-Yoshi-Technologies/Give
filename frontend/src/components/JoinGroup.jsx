@@ -2,7 +2,18 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+/**
+ * JoinGroup component allows users to join a group.
+ * Displays group information and join button.
+ * Handles join logic and UI feedback.
+ *
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.groupId - The ID of the group to join
+ * @param {Function} [props.onJoin] - Callback when user joins the group
+ */
 
+// Import React and any required dependencies
 export default function JoinGroup({ id }) {
   const [requested, setRequested] = useState(false);
   const [groupName, setGroupName] = useState("");
@@ -26,6 +37,11 @@ export default function JoinGroup({ id }) {
     fetchGroupName();
   }, [id]);
 
+  /**
+   * JoinGroupButton component renders the button for joining the group.
+   *
+   * @returns {JSX.Element} The rendered button component.
+   */
   function JoinGroupButton() {
     let buttonText;
     if (requested) {

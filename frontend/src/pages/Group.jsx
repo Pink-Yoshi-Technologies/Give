@@ -1,3 +1,6 @@
+// Group page displays information about a specific group.
+// Handles group access, member list, and restricted view logic.
+// Uses GroupTab, JoinGroup, and other components for layout and functionality.
 import React, { useState, useEffect } from "react";
 import AppLayout from "../layouts/AppLayout";
 import LeftSidebar from "../components/LeftSideBar";
@@ -10,6 +13,11 @@ import { groupTabConfig } from "../config/tabConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
+/**
+ * Group component displays the group page with posts and group information.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 export default function Group() {
   const { groupId: id } = useParams();
   const { user, loading: authLoading } = useAuth();

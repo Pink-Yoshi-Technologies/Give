@@ -1,5 +1,9 @@
 import React from "react";
 
+/*
+  SuggestedBox displays a list of suggested tags and groups for quick navigation.
+  It is used in the sidebar to help users discover popular topics and groups.
+*/
 export default function SuggestedBox() {
   const tags = ["#snacks", "#movie", "#dinner"];
   const groups = [
@@ -31,9 +35,11 @@ export default function SuggestedBox() {
         <div className="mt-5">
           <h3 className="text-sm font-semibold text-left text-black">Tags</h3>
           <ul className="text-xs font-semibold mt-2 leading-6 text-black">
-            {tags.map((tag, i) => (
-              <li key={i} className="flex justify-between items-center cursor-pointer pl-2">
+            {tags.map((tag) => (
+              <li key={tag} className="flex justify-between items-center cursor-pointer pl-2">
+                {/* Tag name */}
                 {tag}
+                {/* Arrow icon for navigation */}
                 <img
                   src="/arrow.svg"
                   alt="arrow right"

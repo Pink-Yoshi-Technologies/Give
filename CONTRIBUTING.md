@@ -92,7 +92,7 @@ See the [wiki](../../wiki) and issue board for a breakdown of features by phase.
 ## Architecture Overview
 The system consists of the following high-level components:
 ```
-Client (React/Typescript)
+Client (React/Javascript)
   ↓
 Backend (Node)
   ↓
@@ -108,6 +108,4 @@ For more, visit the wiki.
 * Document all discussion outcomes on relevant issues or PRs
 
 ## Getting in touch
-* Please **do not email** individual team members
 * Use GitHub Issues and Pull Request comments for all communication
-* For group coordination, refer to weekly meeting notes in the [wiki](../../wiki).
