@@ -25,37 +25,49 @@ export default function Group() {
 
   const [accessible, setAccessible] = useState(false);
   const [loadingGroup, setLoadingGroup] = useState(true);
+  const [groupName, setGroupName] = useState("");
 
   const currentTab = "group";
   const handleTabChange = () => {};
 
   useEffect(() => {
-  async function checkMembership() {
-    if (!id || !user) return;
-    try {
-      const groupRef = doc(db, "groups", id);
-      const groupSnap = await getDoc(groupRef);
-      if (groupSnap.exists()) {
-        const groupData = groupSnap.data();
-        const usersArray = Array.isArray(groupData.users) ? groupData.users : [];
-        // Use user.uid (Firebase Auth)
-        const isMember = usersArray.includes(user.uid);
-        setAccessible(isMember);
-      } else {
+    async function checkMembershipAndFetchName() {
+      if (!id || !user) return;
+      try {
+        const groupRef = doc(db, "groups", id);
+        const groupSnap = await getDoc(groupRef);
+        if (groupSnap.exists()) {
+          const groupData = groupSnap.data();
+          const usersArray = Array.isArray(groupData.users) ? groupData.users : [];
+          // Use user.uid (Firebase Auth)
+          const isMember = usersArray.includes(user.uid);
+          setAccessible(isMember);
+          setGroupName(groupData.name || "");
+        } else {
+          setAccessible(false);
+          setGroupName("");
+        }
+      } catch (err) {
+        console.error("Error fetching group:", err);
         setAccessible(false);
+        setGroupName("");
+      } finally {
+        setLoadingGroup(false);
       }
-    } catch (err) {
-      console.error("Error fetching group:", err);
-      setAccessible(false);
-    } finally {
-      setLoadingGroup(false);
     }
-  }
-  checkMembership();
-}, [id, user]);
+    checkMembershipAndFetchName();
+  }, [id, user]);
 
   if (authLoading || loadingGroup) return null;
   if (!user) return <Navigate to="/" replace />;
+
+  // Inject group name into each post for consistency
+  const postsWithGroup = accessible
+    ? posts.map((p) => ({
+        ...p,
+        group: { name: groupName },
+      }))
+    : [];
 
   return (
     <AppLayout
@@ -74,9 +86,7 @@ export default function Group() {
         />
       }
       center={
-        <div className="flex-1 overflow-y-auto">
-          {accessible ? <PostsList posts={posts} /> : <JoinGroup id={id} />}
-        </div>
+        accessible ? <PostsList posts={postsWithGroup} /> : <JoinGroup id={id} />
       }
       right={<GroupSearch />}
     />
