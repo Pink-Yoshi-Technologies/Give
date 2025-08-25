@@ -9,7 +9,15 @@ import clsx from "clsx";
  */
 const UserCard = ({ user, group }) => {
   const name = user?.name;
-  const profilePic = user?.userId ? `/images/${user.userId}.jpg` : "/images/noPfp.jpg";
+  // Use special profile image for specific user IDs, otherwise use user's profilePic or default
+  let profilePic = user?.profilePic || "/images/noPfp.jpg";
+  if (user?.id === "NriIZ1wx4qXPRJfkXxOqS0dppHA2") {
+    profilePic = "/images/profile.jpg";
+  } else if (user?.id === "jTm7DVQeS0a7b5X72rbqVwwq9kb2") {
+    profilePic = "/images/wowowprofile.jpg";
+  } else if (user?.id === "hJ2fkfnlrPSk3mG6jtqLQxJlpgj2") {
+    profilePic = "/images/jayde.jpg";
+  }
   const groupName = group?.name;
 
   return (
@@ -18,15 +26,16 @@ const UserCard = ({ user, group }) => {
         className="w-14 h-14 rounded-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
         style={{ backgroundImage: `url(${profilePic})` }}
       >
-        <img
-          src={profilePic}
-          alt={name ?? "user avatar"}
-          className={clsx(
-            "w-full h-full rounded-full border-2 border-[#D9D9D9] p-2",
-            { "bg-white": !!user?.userId }
-          )}
-          onError={e => { e.target.onerror = null; e.target.src = "/images/noPfp.jpg"; }}
-        />
+        {user?.profilePic && (
+          <img
+            src={profilePic}
+            alt={name ?? "user avatar"}
+            className={clsx(
+              "w-full h-full rounded-full border-2 border-[#D9D9D9] p-2",
+              { "bg-white": !!user.profilePic }
+            )}
+          />
+        )}
       </div>
       <div className="text-left px-4 flex flex-col justify-center">
         {/* Display username */}

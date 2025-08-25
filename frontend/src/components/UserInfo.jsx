@@ -16,7 +16,10 @@ export default function UserInfo() {
   // username: part before '@' in email, or UID if email is missing
   const username = user?.email ? user.email.split('@')[0] : (user?.uid || 'username');
   // profilePic: user's photoURL or fallback to default profile image
-  const profilePic = user?.photoURL || '/images/noPfp.jpg';
+const profilePic =
+    user?.uid === "NriIZ1wx4qXPRJfkXxOqS0dppHA2"
+      ? "/images/profile.jpg"
+      : user?.photoURL || '/images/noPfp.jpg';
 
   return (
     // Main container for user info

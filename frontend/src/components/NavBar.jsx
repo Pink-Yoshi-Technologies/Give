@@ -25,7 +25,10 @@ function NavBar() {
     user?.displayName || (user?.email ? user.email.split("@")[0] : "User");
 
   // Use user's profile picture or placeholder if not available
-  const profilePic = user?.photoURL || "https://placehold.co/600x400.png";
+const profilePic =
+    user?.uid === "NriIZ1wx4qXPRJfkXxOqS0dppHA2"
+      ? "/images/profile.jpg"
+      : user?.photoURL || '/images/noPfp.jpg';
 
   // State for search functionality
   const [searchQuery, setSearchQuery] = useState("");
