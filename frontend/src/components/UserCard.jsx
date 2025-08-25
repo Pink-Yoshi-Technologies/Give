@@ -9,7 +9,7 @@ import clsx from "clsx";
  */
 const UserCard = ({ user, group }) => {
   const name = user?.name;
-  const profilePic = user?.profilePic || "/images/noPfp.jpg";
+  const profilePic = user?.userId ? `/images/${user.userId}.jpg` : "/images/noPfp.jpg";
   const groupName = group?.name;
 
   return (
@@ -18,16 +18,15 @@ const UserCard = ({ user, group }) => {
         className="w-14 h-14 rounded-full bg-cover bg-center bg-no-repeat flex items-center justify-center"
         style={{ backgroundImage: `url(${profilePic})` }}
       >
-        {user?.profilePic && (
-          <img
-            src={user.profilePic}
-            alt={name ?? "user avatar"}
-            className={clsx(
-              "w-full h-full rounded-full border-2 border-[#D9D9D9] p-2",
-              { "bg-white": !!user.profilePic }
-            )}
-          />
-        )}
+        <img
+          src={profilePic}
+          alt={name ?? "user avatar"}
+          className={clsx(
+            "w-full h-full rounded-full border-2 border-[#D9D9D9] p-2",
+            { "bg-white": !!user?.userId }
+          )}
+          onError={e => { e.target.onerror = null; e.target.src = "/images/noPfp.jpg"; }}
+        />
       </div>
       <div className="text-left px-4 flex flex-col justify-center">
         {/* Display username */}

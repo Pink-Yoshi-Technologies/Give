@@ -66,14 +66,17 @@ export default function GroupSearch() {
 
   // Renders a single group item in the list
   function GroupItem({ group }) {
-    const { id, name, profilePic } = group;
+    const { id, name } = group;
+    // Use image from images folder with the same name as the group name
+    const imageSrc = `/images/${name}.jpg`;
     return (
       <li className="flex items-center rounded-xl gap-4 p-2 cursor-pointer group">
-        <div className={clsx("w-10 h-10 rounded-full border-2 border-darkGrey overflow-hidden", { "bg-gray-300": !profilePic })}>
+        <div className={clsx("w-10 h-10 rounded-full border-2 border-darkGrey overflow-hidden")}> 
           <img
-            src={profilePic ? `images/${profilePic}` : "/images/placeholder.svg"}
+            src={imageSrc}
             alt={`${name} profile`}
             className="w-full h-full object-cover"
+            onError={e => { e.target.onerror = null; e.target.src = "/images/placeholder.svg"; }}
           />
         </div>
         <a

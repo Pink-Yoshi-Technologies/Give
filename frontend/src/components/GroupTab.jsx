@@ -84,14 +84,15 @@ export default function GroupTab({ id, accessible }) {
         <div
           className={clsx(
             "w-10 h-10 rounded-full overflow-hidden border-2 border-white",
-            { "bg-gray-300": !group?.profilePic }
+                { "bg-gray-300": !group?.name }
           )}
         >
-          <img
-            src={group?.profilePic ? `images/${group.profilePic}` : "/images/placeholder.svg"}
-            alt={`${group?.name || `Group ${id}`} profile`}
-            className="w-full h-full object-cover"
-          />
+              <img
+                src={group?.name ? `/images/${group.name}.jpg` : "/images/placeholder.svg"}
+                alt={`${group?.name || `Group ${id}`} profile`}
+                className="w-full h-full object-cover"
+                onError={e => { e.target.onerror = null; e.target.src = "/images/placeholder.svg"; }}
+              />
         </div>
         <div className="flex flex-col items-start">
           <p className="font-semibold text-base text-black">{group?.name || `Group ${id}`}</p>
