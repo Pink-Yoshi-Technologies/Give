@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const { admin, db } = require('./firebase/firebase');
 const postRoutes = require('./routes/postRoutes');
+const authRoutes = require('./routes/auth');
 
 const app = express();
 const PORT = process.env.PORT || 5002;
@@ -21,6 +22,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/posts', postRoutes);
+app.use('/api/auth', authRoutes);
 
 app.post('/api/saveProfile', async (req, res) => {
   console.log('Headers:', req.headers);
