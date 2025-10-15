@@ -2,6 +2,40 @@
 import React, { useState, useEffect } from "react";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
+
+
+/**
+ * Creates a new post via the backend API.
+ *
+ * @param {Object} params - Parameters for creating the post.
+ * @param {Object} params.currentUser - The current user object (must have uid, ).
+ * @param {string} params.id - The id of the group
+ * @returns {Promise<Object>} Resolves to the user joining the group
+ * @throws
+ */
+async function joinGroupViaApi({
+    currentUser,
+    id
+}) {
+    // Construct request body with user info and group id
+    const body = {
+        authorId: currentUser?.uid ?? null,
+        dId: id
+    };
+
+    // Send POST request to add user to group
+    const res = await fetch("/api/groups/join", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+    });
+    // Handle API response errors
+    if (!res.ok) throw new Error((await res.json()).error || "Failed to create");
+    return res.json();
+}
+
+
 /**
  * JoinGroup component allows users to join a group.
  * Displays group information and join button.
@@ -15,8 +49,9 @@ import { db } from "../firebase";
 
 // Import React and any required dependencies
 export default function JoinGroup({ id }) {
+  const { user: currentUser } = useAuth();
   const [requested, setRequested] = useState(false);
-  const [groupName, setGroupName] = useState("");
+    const [groupName, setGroupName] = useState("");
 
   useEffect(() => {
     async function fetchGroupName() {
@@ -37,34 +72,42 @@ export default function JoinGroup({ id }) {
     fetchGroupName();
   }, [id]);
 
-  /**
-   * JoinGroupButton component renders the button for joining the group.
-   *
-   * @returns {JSX.Element} The rendered button component.
-   */
-  function JoinGroupButton() {
-    let buttonText;
-    if (requested) {
-      buttonText = "Pending Request";
-    } else if (groupName) {
-      buttonText = "Join Group: " + groupName;
-    } else {
-      buttonText = "Join Group " + id;
+    async function joinGroup() {
+        setRequested(true);
+        await joinGroupViaApi({
+            currentUser,
+            id
+        });
     }
-    return (
-      <button
-        onClick={() => setRequested(true)}
-        disabled={requested}
-        className={`font-semibold py-2 px-4 rounded-full transition-colors
-          ${requested 
-            ? "bg-darkGrey text-black/60 cursor-not-allowed" 
-            : "bg-darkGrey text-black hover:bg-defaultYellow"
-          }`}
-      >
-        {buttonText}
-      </button>
-    );
-  }
+
+      /**
+       * JoinGroupButton component renders the button for joining the group.
+       *
+       * @returns {JSX.Element} The rendered button component.
+       */
+      function JoinGroupButton() {
+        let buttonText;
+        if (requested) {
+          buttonText = "Pending Request";
+        } else if (groupName) {
+          buttonText = "Join Group: " + groupName;
+        } else {
+          buttonText = "Join Group " + id;
+        }
+        return (
+          <button
+            onClick={() => joinGroup()}
+            disabled={requested}
+            className={`font-semibold py-2 px-4 rounded-full transition-colors
+              ${requested 
+                ? "bg-darkGrey text-black/60 cursor-not-allowed" 
+                : "bg-darkGrey text-black hover:bg-defaultYellow"
+              }`}
+          >
+            {buttonText}
+          </button>
+        );
+      }
 
   return (
     <div className="w-full rounded-3xl p-4 bg-backgroundGrey flex flex-col items-center h-[350px]">

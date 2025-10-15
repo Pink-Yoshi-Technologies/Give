@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePostsRefresh } from "./PostsContainer";
 
 /**
  * PollBox Component
@@ -8,9 +9,11 @@ import { useState, useEffect } from "react";
  *
  * @param {string} postId - Unique identifier for the post containing this poll
  * @param {Array} initialOptions - Array of poll options with labels and vote counts
- * @param {Function} refreshPosts - Callback function to refresh post data after voting
  */
-export default function PollBox({ postId, initialOptions, refreshPosts }) {
+export default function PollBox({ postId, initialOptions }) {
+  // Access the Posts refresh functionality
+  const { refreshPosts } = usePostsRefresh();
+  
   // State to track if the current user has voted on this poll
   const [hasVoted, setHasVoted] = useState(false);
 
@@ -80,10 +83,18 @@ export default function PollBox({ postId, initialOptions, refreshPosts }) {
 
       console.log("Vote successful, refreshing posts...");
 
-      // Refresh post data to get updated vote counts
-      if (refreshPosts) {
-        await refreshPosts();
-      }
+      // Refresh post data to sync with backend first
+      await refreshPosts();
+
+      console.log("Posts refreshed, updating UI to show results...");
+
+      // Only after successful refresh, update local state and show results
+      const updatedOptions = [...currentOptions];
+      updatedOptions[optionIndex] = {
+        ...updatedOptions[optionIndex],
+        votes: (updatedOptions[optionIndex].votes || 0) + 1,
+      };
+      setCurrentOptions(updatedOptions);
 
       // Update UI to show results instead of voting options
       setHasVoted(true);

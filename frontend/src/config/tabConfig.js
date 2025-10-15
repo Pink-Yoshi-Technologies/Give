@@ -37,5 +37,11 @@ export const homeTabConfig = [
     label: "Create Post",
     activeKey: "create",
     link: null,
-  },
+   },
+   {
+    icon: "/Plus.png",
+    label: "Create Group",
+    activeKey: "createGroup",
+    link: null,
+   },
 ];

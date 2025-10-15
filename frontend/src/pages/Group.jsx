@@ -5,6 +5,7 @@ import React, { useState, useEffect } from "react";
 import AppLayout from "../layouts/AppLayout";
 import LeftSidebar from "../components/LeftSideBar";
 import PostsList from "../components/PostsList";
+import PostsContainer from "../components/PostsContainer";
 import { GroupTab, GroupSearch, CreatePost, JoinGroup } from "../";
 import { useAuth } from "../contexts/AuthContext";
 import { Navigate, useParams } from "react-router-dom";
@@ -21,7 +22,7 @@ import { db } from "../firebase";
 export default function Group() {
   const { groupId: id } = useParams();
   const { user, loading: authLoading } = useAuth();
-  const { posts, loading: postsLoading } = usePosts();
+  const { posts, loading: postsLoading } = usePosts(id);
 
   const [accessible, setAccessible] = useState(false);
   const [loadingGroup, setLoadingGroup] = useState(true);
@@ -38,7 +39,7 @@ export default function Group() {
         const groupSnap = await getDoc(groupRef);
         if (groupSnap.exists()) {
           const groupData = groupSnap.data();
-          const usersArray = Array.isArray(groupData.users) ? groupData.users : [];
+          const usersArray = Array.isArray(groupData.members) ? groupData.members : [];
           // Use user.uid (Firebase Auth)
           const isMember = usersArray.includes(user.uid);
           setAccessible(isMember);
@@ -86,9 +87,9 @@ export default function Group() {
         />
       }
       center={
-        accessible ? <PostsList posts={postsWithGroup} /> : <JoinGroup id={id} />
+          accessible ? <PostsContainer groupId={id} /> : <JoinGroup id={id} />
       }
-      right={<GroupSearch />}
+          right={<GroupSearch groupId={id} />}
     />
   );
 }

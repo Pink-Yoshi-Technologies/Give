@@ -23,7 +23,7 @@ export default function AppLayout({ left, center, right }) {
         </header>
 
         <main className="flex flex-1 min-h-0">
-          <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen overflow-y-auto flex-shrink-0">
+                  <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen overflow-y-auto flex-shrink-0 scrollbar-hide">
             {left}
           </aside>
 
@@ -31,7 +31,7 @@ export default function AppLayout({ left, center, right }) {
             {center}
           </section>
 
-          <aside className="flex w-[27%] flex-col sticky top-0 max-h-screen flex-shrink-0 scrollbar-groupSearch">
+                  <aside className="flex w-[27%] flex-col gap-4 sticky top-0 max-h-screen flex-shrink-0 overflow-auto scrollbar-hide">
             {right}
           </aside>
         </main>

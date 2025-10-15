@@ -31,7 +31,7 @@ export default function GroupTab({ id, accessible }) {
         const groupData = groupSnap.data();
         setGroup(groupData);
         // Fetch user displayNames for each user ID in groupData.users
-        let memberIds = Array.isArray(groupData.users) ? groupData.users : [];
+        let memberIds = Array.isArray(groupData.members) ? groupData.members : [];
         if (memberIds.length > 0) {
           const userDisplayNames = await Promise.all(
             memberIds.map(async (userId) => {

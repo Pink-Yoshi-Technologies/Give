@@ -13,7 +13,12 @@ import { Post } from "../";
  * @returns {JSX.Element|null} The rendered list of posts or null if no posts.
  */
 export default function PostsList({ posts }) {
-  if (!posts?.length) return null;
+    if (!posts?.length) return (
+        <div className="w-full mx-auto">
+            <div className="bg-backgroundGrey p-4 rounded-3xl shadow-md">
+                <p className="text-gray-500 text-sm">No posts found.</p>
+            </div>
+        </div>);
   return posts.map((p) => (
     <Post
       key={p.id}

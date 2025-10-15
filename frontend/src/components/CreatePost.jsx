@@ -4,6 +4,7 @@ import imageIcon from "../assets/imageIcon.svg";
 import { uploadManyAndGetUrls } from "../lib/StorageUpload";
 import { useAuth } from "../contexts/AuthContext";
 import PostData from "./PostData";
+import { collection, getDocs, getFirestore, query, where } from "firebase/firestore";
 
 /**
  * Creates a new post via the backend API.
@@ -22,8 +23,12 @@ export async function createPostViaApi({
   content,
   mediaUrls = [],
   tags = [],
-  polls = [],
+    polls = [],
+  group,
 }) {
+    if (group === "None") {
+        group = null;
+    }
   // Construct request body with user info and post data
   const body = {
     content,
@@ -33,6 +38,7 @@ export async function createPostViaApi({
     authorDisplayName: currentUser?.displayName ?? null,
     authorPhotoURL: currentUser?.photoURL ?? null,
     polls,
+    group,
   };
 
   // Send POST request to create new post
@@ -99,6 +105,9 @@ export default function CreatePost() {
   const [pollOptions, setPollOptions] = useState([]); // Array of poll options
   const [files, setFiles] = useState([]); // Selected image files
   const [previews, setPreviews] = useState([]); // Image preview URLs
+    const [group, setGroup] = useState("");
+    const [groups, setGroups] = useState([]);
+    const [loadingGroups, setLoadingGroups] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0); // Force component re-renders
 
   // Reference to hidden file input element
@@ -171,6 +180,28 @@ export default function CreatePost() {
     return () => previews.forEach(URL.revokeObjectURL);
   }, [previews]);
 
+    // Fetch groups for the current user from Firestore
+    useEffect(() => {
+        const fetchGroups = async () => {
+            setLoadingGroups(true);
+            if (currentUser) {
+                const db = getFirestore();
+                // Query groups where 'users' array contains the current user's UID
+                const q = query(
+                    collection(db, "groups"),
+                    where("members", "array-contains", currentUser.uid)
+                );
+                const groupSnap = await getDocs(q);
+                const userGroups = groupSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setGroups(userGroups);
+            } else {
+                setGroups([]);
+            }
+            setLoadingGroups(false);
+        };
+        fetchGroups();
+    }, [currentUser]);
+
   /**
    * Fetches the latest posts from the API and updates component state
    * Called after successful post creation to show updated feed
@@ -239,6 +270,7 @@ export default function CreatePost() {
           .map((t) => t.trim()) // Trim whitespace from each tag
           .filter(Boolean), // Remove empty tags
         polls: cleanPolls,
+          group: group,
       });
 
       // Reset form state after successful submission
@@ -248,6 +280,7 @@ export default function CreatePost() {
       previews.forEach(URL.revokeObjectURL); // Clean up preview URLs
       setPreviews([]);
       setPollOptions([]);
+      setGroup("");
 
       // Refresh posts to show the new post
       await refreshPosts();
@@ -273,27 +306,18 @@ export default function CreatePost() {
           {/* Group selection section (placeholder for future functionality) */}
           <div className="flex items-center space-x-2 mb-4">
             <h3 className="text-lg font-semibold text-black">Add to:</h3>
-            {/* Group dropdown button - currently non-functional */}
-            <button
-              type="button"
-              className="inline-flex items-center justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              Group
-              {/* Dropdown chevron icon */}
-              <svg
-                className="-mr-1 ml-2 h-5 w-5"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                aria-hidden="true"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.584l3.71-4.355a.75.75 0 011.14.976l-4.25 5a.75.75 0 01-1.14 0l-4.25-5a.75.75 0 01.02-1.06z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
+            {/* Group dropdown button*/}
+                      <select name="Group" id="Group" className="inline-flex items-center justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50"
+                onChange={(e) => setGroup(e.target.value)}
+                disabled={submitting}
+                required >
+                <option value="None">Public feed</option>
+                {groups.map((group) => (
+                    <option key={group.id} value={group.id}>
+                        {group.name}
+                    </option>
+                ))}
+            </select>
           </div>
 
           {/* Text content section header */}
