@@ -11,7 +11,7 @@ import { useParams } from "react-router-dom";
  * Post page component.
  * @returns {JSX.Element}
  */
-export default function PostScreen() {
+export default function Post() {
     const { postId: pId } = useParams();
     const currentTab = "post";
     const handleTabChange = () => { };

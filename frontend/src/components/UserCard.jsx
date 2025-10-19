@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 
 /**
  * UserCard component displays a user's avatar, name, and group.
@@ -11,6 +12,7 @@ const UserCard = ({ user, group }) => {
   const name = user?.name;
   const profilePic = user?.profilePic || "/images/noPfp.jpg";
   const groupName = group?.name;
+  const userId = user?.id;
 
   return (
     <div className="grid grid-cols-[min-content_auto_min-content] w-full bg-gray-100 rounded-xl">
@@ -32,9 +34,18 @@ const UserCard = ({ user, group }) => {
       <div className="text-left px-4 flex flex-col justify-center">
         {/* Display username */}
         {name && (
-          <p className="font-semibold text-[1.2rem] leading-4 lowercase">
-            @{name}
-          </p>
+          userId ? (
+            <Link
+              to={`/profile/${userId}`}
+              className="font-semibold text-[1.2rem] leading-4 lowercase hover:underline"
+            >
+              @{name}
+            </Link>
+          ) : (
+            <p className="font-semibold text-[1.2rem] leading-4 lowercase">
+              @{name}
+            </p>
+          )
         )}
         {/* Display group name if available */}
         {groupName && (

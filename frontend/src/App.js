@@ -16,7 +16,10 @@ import CreateAccount from "./pages/CreateAccount";
 import { AuthProvider } from './contexts/AuthContext';
 import RequireAuth from './components/RequireAuth';
 import Group from "./pages/Group";
-import ProfileScreen from "./pages/ProfilePage";
+import PublicProfile from "./pages/PublicProfile";
+import ProfileScreen from "./pages/Profile";
+import Post from "./pages/Post";
+import Explore from "./pages/Explore";
 import PostScreen from "./pages/Post";
 
 
@@ -91,13 +94,21 @@ function App() {
         element: <RequireAuth><Group postData={postData} /></RequireAuth>,
       },
       {
-      path: "/profile",
-      element: <ProfileScreen />,
-    },
-    {
-      path: "/post/:postId",
-      element: <PostScreen />,
-    },
+        path: "/profile",
+        element: <RequireAuth><ProfileScreen /></RequireAuth>,
+      },
+      {
+        path: "/profile/:userId",
+        element: <PublicProfile />,
+      },
+      {
+  path: "/post/:postId",
+  element: <Post />, 
+      },
+      {
+        path: "/explore",
+        element: <Explore />,
+      },
     ],
     },
   ]);

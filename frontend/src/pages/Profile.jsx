@@ -4,7 +4,7 @@
 import React, { useState } from "react";
 import AppLayout from "../layouts/AppLayout";
 import LeftSidebar from "../components/LeftSideBar";
-import { SuggestedBox, GroupSearch, CreatePost, CreateGroup, Profile } from "../";
+import { SuggestedBox, GroupSearch, CreatePost, CreateGroup, Profile } from "..";
 import { profileTabConfig } from "../config/tabConfig";
 import RequireAuth from '../components/RequireAuth';
 

@@ -2,6 +2,7 @@
  * Search service for querying users, groups, and posts.
  */
 import { collection, getDocs, limit, query } from "firebase/firestore";
+import { where, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
 
 const DEBUG = true;
@@ -9,6 +10,38 @@ const log = (...a) => DEBUG && console.log("[search]", ...a);
 const warn = (...a) => DEBUG && console.warn("[search]", ...a);
 const group = (label) => DEBUG && console.groupCollapsed(label);
 const groupEnd = () => DEBUG && console.groupEnd();
+
+/**
+ * Fetch posts by tag.
+ * Performs a Firestore query for posts whose `tags` array contains the given tag.
+ * 
+ * @param {string} tag - The tag to search for (case-insensitive).
+ * @param {number} [max=20] - The maximum number of posts to return.
+ * @returns {Promise<Array>} A promise resolving to an array of post objects.
+ */
+export async function fetchPostsByTag(tag, max = 20) {
+  if (!tag) return [];
+
+  const normalizedTag = tag.trim().toLowerCase();
+  const postsRef = collection(db, "posts");
+
+  try {
+    // If you store tags as lowercase in Firestore:
+    const q = query(
+      postsRef,
+      where("tags", "array-contains", normalizedTag),
+      orderBy("createdAt", "desc"),
+      limit(max)
+    );
+
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+  } catch (e) {
+    console.warn("fetchPostsByTag failed:", e);
+    return [];
+  }
+}
 
 /**
  * Normalizes a search string by trimming and lowercasing it.

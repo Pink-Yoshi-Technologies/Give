@@ -5,6 +5,16 @@ import PostsList from "./PostsList";
 // Create context only for posts refresh functionality
 const PostsRefreshContext = createContext();
 
+// Exportable provider so other pages (e.g., Explore) can supply a refresh
+// function and allow components like PollBox to call usePostsRefresh safely
+export function PostsRefreshProvider({ value, children }) {
+  return (
+    <PostsRefreshContext.Provider value={value}>
+      {children}
+    </PostsRefreshContext.Provider>
+  );
+}
+
 /**
  * Custom hook to access posts refresh functionality
  * Only available within PostsContainer

@@ -73,6 +73,7 @@ function NavBar() {
           ...res.users.map((u) => ({
             label: `@${u.displayName || u.username || ""}`.trim(),
             type: "user",
+            userId: u.id || u.uid || "",
           })),
 
           // Group suggestions - prefixed with "Group:"
@@ -95,7 +96,11 @@ function NavBar() {
               tags[0] ||
               "";
             return match
-              ? [{ label: `#${match.replace(/^#/, "")}`, type: "tag" }]
+              ? [{ 
+                  label: `#${match.replace(/^#/, "")}`, 
+                  type: "tag",
+                  tag: match.replace(/^#/, "")
+                }]
               : [];
           }),
 
@@ -103,6 +108,7 @@ function NavBar() {
           ...res.posts.byAuthor.map((p) => ({
             label: `Author: ${p.authorDisplayName || ""}`.trim(),
             type: "post_author",
+            id: p.id,
           })),
 
           // Content suggestions - truncated post content
@@ -111,6 +117,7 @@ function NavBar() {
               (p.content || "").length > 60 ? "…" : ""
             }`,
             type: "post_content",
+            id: p.id,
           })),
         ]
           //Remove duplicates and empty labels, limit to 12 items
@@ -187,16 +194,85 @@ function NavBar() {
                   className="absolute left-0 right-0 text-base mt-1 bg-backgroundGrey border rounded-[1rem] shadow-md max-h-60 overflow-y-auto z-50"
                 >
                   {filteredSuggestions.map((s, i) => {
-                    // SPecial handling for group suggestions with navigation
+                    // Group link
                     if (s.type === "group" && s.groupId) {
                       return (
-                        <li
-                          key={i}
-                          className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer"
-                        >
+                        <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
                           <Link
                             to={`/group/${s.groupId}`}
                             className="text-base text-gray-600 group-hover:text-black w-full block"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setSearchQuery("");
+                            }}
+                          >
+                            {s.label}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    // User link
+                    if (s.type === "user" && s.userId) {
+                      return (
+                        <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
+                          <Link
+                            to={`/profile/${s.userId}`}
+                            className="text-base text-gray-600 group-hover:text-black w-full block"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setSearchQuery("");
+                            }}
+                          >
+                            {s.label}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    // Post content link
+                    if (s.type === "post_content" && s.id) {
+                      return (
+                        <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
+                          <Link
+                            to={`/post/${s.id}`}
+                            className="text-base text-gray-600 group-hover:text-black w-full block"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setSearchQuery("");
+                            }}
+                          >
+                            {s.label}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    // Post author link
+                    if (s.type === "post_author" && s.id) {
+                      return (
+                        <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
+                          <Link
+                            to={`/post/${s.id}`}
+                            className="text-base text-gray-600 group-hover:text-black w-full block"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setSearchQuery("");
+                            }}
+                          >
+                            {s.label}
+                          </Link>
+                        </li>
+                      );
+                    }
+                    // Tag link
+                    if (s.type === "tag" && s.tag) {
+                      return (
+                        <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
+                          <Link
+                            to={`/explore?tag=${encodeURIComponent(s.tag)}`}
+                            className="text-base text-gray-600 group-hover:text-black w-full block"
+                            onClick={() => {
+                              setShowDropdown(false);
+                              setSearchQuery("");
+                            }}
                           >
                             {s.label}
                           </Link>
@@ -205,10 +281,7 @@ function NavBar() {
                     }
                     //Default suggestion item (no navigation yet)
                     return (
-                      <li
-                        key={i}
-                        className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer"
-                      >
+                      <li key={i} className="px-3 py-2 text-left group hover:bg-gray-100 cursor-pointer">
                         <span className="text-base text-gray-600 group-hover:text-black">
                           {s.label}
                         </span>
@@ -245,9 +318,9 @@ function NavBar() {
       {/* Right Section - User profile and settings */}
       <div className="flex items-center gap-4 w-[27%] justify-end">
         {/* User Profile Display (now clickable) */}
-        <div
+        <Link
+          to="/profile"
           className="flex items-center gap-2 cursor-pointer rounded-[25px]"
-          onClick={() => navigate("/profile")}
         >
           {/* Profile Picture */}
           <div
@@ -266,7 +339,7 @@ function NavBar() {
           <span className="font-medium text-gray-700 text-lg">
             {displayName}
           </span>
-        </div>
+        </Link>
 
         {/* Settings Button */}
         <button className="rounded-full flex items-center justify-center">

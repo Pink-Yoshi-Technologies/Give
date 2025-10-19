@@ -3,6 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { getAuth } from "firebase/auth";
 import { getFirestore, collection, query, where, getDocs } from "firebase/firestore";
 
+/**
+ * Profile page component.
+ * @returns {JSX.Element}
+ */
 const ProfilePage = () => {
   const auth = getAuth();
   const db = getFirestore();
